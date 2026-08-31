@@ -640,6 +640,10 @@
     table.appendChild(container);
   }
 
+  // User Created Event Types Memory Storage
+  const STORAGE_USER_EVENT_TYPES_KEY = 'fdb_user_custom_event_types_v1';
+  let userCustomEventTypes = loadState(STORAGE_USER_EVENT_TYPES_KEY, []);
+
   // Open Add/Edit Calendar Event Modal
   function openCalEventModal(evtToEdit = null, prefillDate = '') {
     const modal = document.getElementById('calEventModal');
@@ -657,11 +661,17 @@
     const customColorInput = document.getElementById('calEventCustomColor');
 
     if (!modal) return;
+
+    // Render Member options
     memberSelect.innerHTML = members.map(m => `<option value="${m.id}">${m.avatar} ${m.name}</option>`).join('');
+
+    // Re-render Event Type options with saved user custom types
+    renderEventTypeOptions(typeSelect);
 
     typeSelect.onchange = () => {
       if (typeSelect.value === 'custom') {
         if (customTypeGroup) customTypeGroup.style.display = 'flex';
+        if (customTypeNameInput) customTypeNameInput.focus();
       } else {
         if (customTypeGroup) customTypeGroup.style.display = 'none';
       }
@@ -699,6 +709,25 @@
     }
 
     modal.classList.add('active');
+  }
+
+  function renderEventTypeOptions(selectEl) {
+    let html = `
+      <option value="birthday">🎉 慶生節慶</option>
+      <option value="medical">🏥 醫療健檢</option>
+      <option value="payment">💳 繳費/財務</option>
+      <option value="vehicle">🚗 車輛維護</option>
+      <option value="document">📄 證件/合約</option>
+      <option value="other">📌 一般記事</option>
+    `;
+
+    // Render User Saved Custom Types
+    (userCustomEventTypes || []).forEach(ct => {
+      html += `<option value="saved_${ct.name}" data-color="${ct.color}">✨ ${ct.name}</option>`;
+    });
+
+    html += `<option value="custom">✍️ 自訂類型 (自行打字命名)...</option>`;
+    selectEl.innerHTML = html;
   }
 
   function deleteCalEvent(eventId) {
@@ -898,23 +927,41 @@
         const id = document.getElementById('editCalEventId').value;
         const title = document.getElementById('calEventTitle').value.trim();
         const date = document.getElementById('calEventDate').value;
-        const type = document.getElementById('calEventType').value;
+        const typeSelectVal = document.getElementById('calEventType').value;
         const memberId = document.getElementById('calEventMember').value;
         const notes = document.getElementById('calEventNotes').value.trim();
 
         const customTypeNameInput = document.getElementById('calEventCustomTypeName');
         const customColorInput = document.getElementById('calEventCustomColor');
-        const customTypeName = customTypeNameInput ? customTypeNameInput.value.trim() : '';
-        const customColor = customColorInput ? customColorInput.value : '#06b6d4';
+        let customTypeName = customTypeNameInput ? customTypeNameInput.value.trim() : '';
+        let customColor = customColorInput ? customColorInput.value : '#06b6d4';
+        let finalType = typeSelectVal;
+
+        if (typeSelectVal === 'custom') {
+          if (!customTypeName) {
+            alert('請打字輸入您的自訂類型名稱！');
+            return;
+          }
+          // Save to user custom event types memory if not existing
+          if (!userCustomEventTypes.some(t => t.name === customTypeName)) {
+            userCustomEventTypes.push({ name: customTypeName, color: customColor });
+            saveState(STORAGE_USER_EVENT_TYPES_KEY, userCustomEventTypes);
+          }
+        } else if (typeSelectVal.startsWith('saved_')) {
+          finalType = 'custom';
+          customTypeName = typeSelectVal.replace('saved_', '');
+          const matched = userCustomEventTypes.find(t => t.name === customTypeName);
+          if (matched) customColor = matched.color;
+        }
 
         if (id) {
           const evt = customEvents.find(ev => ev.id === id);
           if (evt) {
             evt.title = title;
             evt.date = date;
-            evt.type = type;
-            evt.customTypeName = type === 'custom' ? customTypeName : '';
-            evt.customColor = type === 'custom' ? customColor : '';
+            evt.type = finalType;
+            evt.customTypeName = (finalType === 'custom' || typeSelectVal.startsWith('saved_')) ? customTypeName : '';
+            evt.customColor = (finalType === 'custom' || typeSelectVal.startsWith('saved_')) ? customColor : '';
             evt.memberId = memberId;
             evt.notes = notes;
           }
@@ -924,9 +971,9 @@
             id: 'evt-' + Date.now(),
             title,
             date,
-            type,
-            customTypeName: type === 'custom' ? customTypeName : '',
-            customColor: type === 'custom' ? customColor : '',
+            type: finalType,
+            customTypeName: (finalType === 'custom' || typeSelectVal.startsWith('saved_')) ? customTypeName : '',
+            customColor: (finalType === 'custom' || typeSelectVal.startsWith('saved_')) ? customColor : '',
             memberId,
             notes
           };
