@@ -461,137 +461,93 @@
     }
   }
 
-  // Shared Family Calendar Logic & Performance Optimization (Bug-free Date Math)
-  const now = new Date();
-  let currentCalYear = now.getFullYear();
-  let currentCalMonth = now.getMonth(); // 0-indexed (0=Jan, 7=Aug)
-  let calendarViewMode = 'month'; // 'month', 'week', 'agenda'
+  // Shared Family Calendar Logic powered by FullCalendar v6 Standard Engine
+  let calendarInstance = null;
 
   function renderFamilyCalendar() {
     try {
       const table = document.getElementById('calendarTable');
-      const title = document.getElementById('calendarMonthYearTitle');
-      if (!table || !title) return;
+      if (!table) return;
 
       if (!Array.isArray(customEvents)) {
         customEvents = [...defaultCustomEvents];
       }
 
-      if (calendarViewMode === 'agenda') {
-        renderAgendaView(table, title);
-        return;
-      }
+      // Map customEvents + document expiration events into FullCalendar events array
+      let fcEvents = [];
 
-      const year = currentCalYear;
-      const month = currentCalMonth;
-      title.textContent = `${year} 年 ${month + 1} 月 (${calendarViewMode === 'week' ? '週視圖' : '月視圖'})`;
+      // 1. Custom Family Events
+      (customEvents || []).forEach(evt => {
+        let color = '#6366f1'; // primary
+        if (evt.type === 'birthday') color = '#ec4899'; // pink
+        else if (evt.type === 'medical') color = '#ef4444'; // red
+        else if (evt.type === 'payment') color = '#f59e0b'; // amber
+        else if (evt.type === 'vehicle') color = '#3b82f6'; // blue
+        else if (evt.type === 'document') color = '#8b5cf6'; // purple
 
-      table.innerHTML = '';
-      table.style.display = 'grid';
-
-      const fragment = document.createDocumentFragment();
-
-      // Day Headers
-      const days = ['日', '一', '二', '三', '四', '五', '六'];
-      days.forEach((d, idx) => {
-        const h = document.createElement('div');
-        h.className = `cal-day-header ${idx === 0 || idx === 6 ? 'weekend' : ''}`;
-        h.textContent = d;
-        fragment.appendChild(h);
-      });
-
-      const today = new Date();
-      
-      if (calendarViewMode === 'month') {
-        const firstDay = new Date(year, month, 1).getDay();
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-        // Empty Cells for Prev Month
-        for (let i = 0; i < firstDay; i++) {
-          const cell = document.createElement('div');
-          cell.className = 'cal-day-cell other-month';
-          fragment.appendChild(cell);
-        }
-
-        // Days in Current Month
-        for (let day = 1; day <= daysInMonth; day++) {
-          renderCalDayCell(fragment, year, month, day, today);
-        }
-      } else if (calendarViewMode === 'week') {
-        // 7-day Week View (Current Week starting Sunday)
-        const currentDayOfWeek = today.getDay();
-        const sundayDate = new Date(today);
-        sundayDate.setDate(today.getDate() - currentDayOfWeek);
-
-        for (let i = 0; i < 7; i++) {
-          const weekDay = new Date(sundayDate);
-          weekDay.setDate(sundayDate.getDate() + i);
-          renderCalDayCell(fragment, weekDay.getFullYear(), weekDay.getMonth(), weekDay.getDate(), today);
-        }
-      }
-
-      table.appendChild(fragment);
-    } catch (err) {
-      console.error('Error rendering calendar:', err);
-    }
-  }
-
-  function renderCalDayCell(container, year, month, day, today) {
-    try {
-      const cell = document.createElement('div');
-      const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === day;
-      cell.className = `cal-day-cell ${isToday ? 'today' : ''}`;
-      
-      const headerDiv = document.createElement('div');
-      headerDiv.className = 'cal-cell-header';
-      headerDiv.innerHTML = `
-        <span class="cal-day-num">${day} ${isToday ? '<span class="today-badge">📍 今天</span>' : ''}</span>
-        <button class="cal-add-btn" title="在此日期新增事件">+</button>
-      `;
-      cell.appendChild(headerDiv);
-
-      const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-      cell.setAttribute('data-date', dateStr);
-
-      cell.addEventListener('click', (e) => {
-        if (e.target.closest('.cal-event-pill')) return;
-        openCalEventModal(null, dateStr);
-      });
-
-      // 1. Render Matched Custom Events
-      const evts = Array.isArray(customEvents) ? customEvents : defaultCustomEvents;
-      const matchedEvents = evts.filter(evt => evt && evt.date === dateStr);
-      matchedEvents.forEach(evt => {
-        const pill = document.createElement('div');
-        pill.className = `cal-event-pill type-${evt.type || 'other'}`;
-        pill.innerHTML = `${evt.title || '行程事件'}`;
-        pill.title = `${evt.title} (${evt.notes || '點擊編輯'})`;
-        pill.addEventListener('click', (e) => {
-          e.stopPropagation();
-          openCalEventModal(evt);
+        fcEvents.push({
+          id: evt.id,
+          title: evt.title,
+          start: evt.date,
+          backgroundColor: color,
+          borderColor: color,
+          extendedProps: { rawObj: evt, isDoc: false }
         });
-        cell.appendChild(pill);
       });
 
-      // 2. Render Matched Document Expiration Events
-      const docs = Array.isArray(documents) ? documents : [];
-      const matchedDocs = docs.filter(d => d && d.expiryDate === dateStr);
-      matchedDocs.forEach(d => {
-        const s = getExpiryStatus(d.expiryDate);
-        const pill = document.createElement('div');
-        pill.className = `cal-event-pill ${s.code === 'expired' ? 'event-expired' : s.code === 'warning' ? 'event-warning' : 'event-ok'}`;
-        pill.innerHTML = `<i class="fa-solid ${s.code === 'expired' ? 'fa-circle-exclamation' : 'fa-clock'}"></i> ${d.title}`;
-        pill.title = `${d.title} (於 ${d.expiryDate} 到期)`;
-        pill.addEventListener('click', (e) => {
-          e.stopPropagation();
-          openPreviewModal(d);
+      // 2. Document Expiry Events
+      (documents || []).forEach(doc => {
+        if (doc.expiryDate) {
+          const s = getExpiryStatus(doc.expiryDate);
+          let color = '#10b981'; // ok
+          if (s.code === 'expired') color = '#ef4444';
+          else if (s.code === 'warning') color = '#f59e0b';
+
+          fcEvents.push({
+            id: 'doc-evt-' + doc.id,
+            title: `📄 ${doc.title} 到期`,
+            start: doc.expiryDate,
+            backgroundColor: color,
+            borderColor: color,
+            extendedProps: { rawObj: doc, isDoc: true }
+          });
+        }
+      });
+
+      if (typeof FullCalendar !== 'undefined') {
+        if (calendarInstance) {
+          calendarInstance.removeAllEventSources();
+          calendarInstance.addEventSource(fcEvents);
+          return;
+        }
+
+        calendarInstance = new FullCalendar.Calendar(table, {
+          initialView: 'dayGridMonth',
+          headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,listMonth'
+          },
+          buttonText: {
+            today: '回到今天',
+            month: '月視圖',
+            week: '週視圖',
+            list: '行程清單'
+          },
+          events: fcEvents,
+          dateClick: function(info) {
+            openCalEventModal(null, info.dateStr);
+          },
+          eventClick: function(info) {
+            const props = info.event.extendedProps;
+            if (props.isDoc) openPreviewModal(props.rawObj);
+            else openCalEventModal(props.rawObj);
+          }
         });
-        cell.appendChild(pill);
-      });
-
-      container.appendChild(cell);
+        calendarInstance.render();
+      }
     } catch (err) {
-      console.error('Error rendering day cell:', err);
+      console.error('Error rendering FullCalendar:', err);
     }
   }
 

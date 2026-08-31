@@ -5,13 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>家庭文件小管家 | Family Document Butler</title>
   
-  <!-- Google Fonts: Outfit & Noto Sans TC -->
+  <!-- FontAwesome 6 & Google Fonts -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
-  <!-- FontAwesome for rich icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- FullCalendar v6 Standard Calendar Engine CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="index.css">
@@ -193,36 +194,24 @@
           </div>
         </section>
 
-        <!-- Shared Family Calendar Section (Default Built-in View) -->
+        <!-- Shared Family Calendar Section (FullCalendar Standard Engine) -->
         <section class="calendar-section" id="calendarSection">
           <div class="calendar-header-card">
             <div class="calendar-title-group">
-              <h2><i class="fa-solid fa-calendar-check text-primary"></i> 家庭共享行事曆看板</h2>
-              <span class="calendar-sub">全家證件/保單到期預警 + 家族大事記與 LINE 提醒</span>
+              <h2><i class="fa-solid fa-calendar-days text-primary"></i> 家庭共享行事曆 (Google Calendar 標準版)</h2>
+              <span class="calendar-sub">點擊任何日期即可新增行程、對照全家證件/保單到期預警與 LINE 推播</span>
             </div>
             
-            <div class="calendar-toolbar">
-              <!-- Segmented View Switcher -->
-              <div class="segmented-control" id="calViewSwitcher">
-                <button class="segmented-btn active" id="calViewMonthBtn"><i class="fa-solid fa-calendar-grid"></i> 月視圖</button>
-                <button class="segmented-btn" id="calViewWeekBtn"><i class="fa-solid fa-calendar-week"></i> 週視圖</button>
-                <button class="segmented-btn" id="calViewAgendaBtn"><i class="fa-solid fa-list-check"></i> 行程清單</button>
-              </div>
-
-              <div class="toolbar-btn-group">
-                <button class="btn btn-primary btn-sm" id="btnQuickAddCalEvent">
-                  <i class="fa-solid fa-plus"></i> 新增事件
-                </button>
-                <button class="btn btn-secondary btn-sm" id="btnLineNotifySetup">
-                  <i class="fa-brands fa-line text-success"></i> LINE 推播
-                </button>
-                <button class="btn btn-secondary btn-sm" id="btnExportIcs">
-                  <i class="fa-solid fa-calendar-plus"></i> 匯出 iCal
-                </button>
-                <button class="btn btn-secondary btn-sm" id="btnResetCalData" title="如遇畫面舊快取或異常，點擊重置修復行事曆資料">
-                  <i class="fa-solid fa-wrench"></i> 修復行事曆
-                </button>
-              </div>
+            <div class="toolbar-btn-group">
+              <button class="btn btn-primary btn-sm" id="btnQuickAddCalEvent">
+                <i class="fa-solid fa-plus"></i> 新增事件
+              </button>
+              <button class="btn btn-secondary btn-sm" id="btnLineNotifySetup">
+                <i class="fa-brands fa-line text-success"></i> LINE 推播
+              </button>
+              <button class="btn btn-secondary btn-sm" id="btnExportIcs">
+                <i class="fa-solid fa-calendar-plus"></i> 匯出 iCal
+              </button>
             </div>
           </div>
 
@@ -230,25 +219,14 @@
           <div class="calendar-smart-input-bar mt-3">
             <div class="smart-input-wrapper">
               <i class="fa-solid fa-wand-magic-sparkles text-accent"></i>
-              <input type="text" id="quickCalInput" placeholder="AI 快捷輸入... (例如：9/20 媽媽生日聚餐、9/28 汽車保養、9/10 繳房屋稅)">
+              <input type="text" id="quickCalInput" placeholder="AI 快捷輸入行程 (例如：9/20 媽媽生日聚餐、9/28 汽車保養、9/10 繳房屋稅)...">
               <button class="btn btn-accent btn-sm" id="btnSubmitQuickCal">一鍵加入</button>
             </div>
           </div>
           
-          <div class="calendar-grid-container mt-3">
-            <div class="calendar-month-bar">
-              <div class="month-nav-group">
-                <button class="icon-btn-sm" id="btnPrevMonth" title="上個月"><i class="fa-solid fa-chevron-left"></i></button>
-                <h3 id="calendarMonthYearTitle">2026 年 9 月</h3>
-                <button class="icon-btn-sm" id="btnNextMonth" title="下個月"><i class="fa-solid fa-chevron-right"></i></button>
-              </div>
-              <button class="btn btn-secondary btn-sm" id="btnCalToday">
-                <i class="fa-solid fa-location-crosshairs text-primary"></i> 回到今天
-              </button>
-            </div>
-            <div class="calendar-table" id="calendarTable">
-              <!-- Dynamic Calendar Grid -->
-            </div>
+          <!-- FullCalendar Main Container -->
+          <div class="fullcalendar-container mt-3" id="calendarAppContainer">
+            <div id="calendarTable"></div>
           </div>
         </section>
 

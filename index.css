@@ -1282,10 +1282,86 @@ button, input, select, textarea {
   box-shadow: 0 2px 10px rgba(99, 102, 241, 0.35);
 }
 
-/* Compact Smart Quick Add Bar */
-.calendar-smart-input-bar {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: var(--radius-md);
+/* FullCalendar v6 Glassmorphism Dark Theme Adaptations */
+.fullcalendar-container {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  backdrop-filter: blur(12px);
+  min-height: 520px;
+}
+
+.fc {
+  font-family: inherit;
+  --fc-border-color: rgba(255, 255, 255, 0.1);
+  --fc-button-bg-color: rgba(255, 255, 255, 0.08);
+  --fc-button-border-color: rgba(255, 255, 255, 0.15);
+  --fc-button-hover-bg-color: var(--primary);
+  --fc-button-active-bg-color: var(--primary);
+  --fc-today-bg-color: rgba(99, 102, 241, 0.15);
+  --fc-page-bg-color: transparent;
+  --fc-neutral-bg-color: rgba(0, 0, 0, 0.2);
+}
+
+.fc .fc-toolbar-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.fc .fc-button {
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  text-transform: capitalize;
+}
+
+.fc .fc-button-primary:not(:disabled).fc-button-active,
+.fc .fc-button-primary:not(:disabled):active {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+.fc-theme-standard td, .fc-theme-standard th {
+  border-color: var(--border-color);
+}
+
+.fc-daygrid-day-number {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-sub);
+  padding: 6px 8px !important;
+}
+
+.fc-day-today .fc-daygrid-day-number {
+  background: var(--primary);
+  color: #fff;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 4px;
+}
+
+.fc-event {
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  border: none !important;
+  margin-top: 2px;
+  transition: all var(--transition-fast);
+}
+
+.fc-event:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.15);
+  box-shadow: var(--shadow-sm);
 }
 
 .smart-input-wrapper {
