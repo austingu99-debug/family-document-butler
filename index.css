@@ -1843,14 +1843,61 @@ button, input, select, textarea {
   border-radius: var(--radius-md);
 }
 
+/* Mobile Hamburger Menu Button & Backdrop Overlay */
+.mobile-menu-btn,
+.mobile-toggle-btn {
+  display: none;
+  background: transparent;
+  border: none;
+  color: var(--text-main);
+  font-size: 22px;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.mobile-menu-btn:hover,
+.mobile-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.mobile-sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 140;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.mobile-sidebar-overlay.active {
+  display: block;
+  opacity: 1;
+}
+
 /* Responsive Media Queries & Mobile Perfection */
 @media (max-width: 900px) {
   .sidebar {
     transform: translateX(-100%);
+    z-index: 150;
   }
   
   .sidebar.mobile-open {
     transform: translateX(0);
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+  }
+
+  .mobile-menu-btn,
+  .mobile-toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .main-content {

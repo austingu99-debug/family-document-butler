@@ -1181,10 +1181,30 @@
     el.btnAiFindPassports.addEventListener('click', () => sendUserAiMessage('誰的護照快到期了？'));
     el.btnAiFindInsurance.addEventListener('click', () => sendUserAiMessage('檢查車險與保單狀態'));
 
-    // Mobile Sidebar Toggle
-    el.mobileMenuBtn.addEventListener('click', () => {
-      el.sidebar.classList.toggle('mobile-open');
+    // Mobile Sidebar Toggle (解決手機三條線按鈕與遮罩點擊關閉)
+    const toggleMobileSidebar = () => {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      if (sidebar) {
+        const isOpen = sidebar.classList.toggle('mobile-open');
+        if (overlay) {
+          if (isOpen) overlay.classList.add('active');
+          else overlay.classList.remove('active');
+        }
+      }
+    };
+
+    document.querySelectorAll('#mobileMenuBtn, .mobile-menu-btn, .mobile-toggle-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleMobileSidebar();
+      });
     });
+
+    const overlayEl = document.getElementById('sidebarOverlay');
+    if (overlayEl) {
+      overlayEl.addEventListener('click', toggleMobileSidebar);
+    }
 
     // Add Document Buttons
     document.querySelectorAll('#btnOpenAddDoc, #btnOpenAddDocTop, #btnEmptyAdd, #btnFabAdd').forEach(btn => {
