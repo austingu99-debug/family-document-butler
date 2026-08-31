@@ -52,6 +52,11 @@
           <span>全部文件</span>
           <span class="badge" id="badgeTotalDocs">0</span>
         </a>
+        <a href="#" class="menu-item" data-filter-type="calendar">
+          <i class="fa-solid fa-calendar-days text-primary"></i>
+          <span>家庭共享行事曆</span>
+          <span class="badge" style="background: var(--primary-light); color: var(--primary);">內建</span>
+        </a>
         <a href="#" class="menu-item" data-filter-type="alert">
           <i class="fa-solid fa-triangle-exclamation"></i>
           <span>到期預警</span>
@@ -188,22 +193,19 @@
           </div>
         </section>
 
-        <!-- Shared Family Calendar Section (Toggle View) -->
-        <section class="calendar-section" id="calendarSection" style="display: none;">
+        <!-- Shared Family Calendar Section (Default Built-in View) -->
+        <section class="calendar-section" id="calendarSection">
           <div class="calendar-header">
             <div class="calendar-title-group">
-              <h2><i class="fa-solid fa-calendar-check text-primary"></i> 家庭共享到期行事曆</h2>
-              <span class="calendar-sub">自動同步全家證件到期日與 LINE 推播事件</span>
+              <h2><i class="fa-solid fa-calendar-check text-primary"></i> 家庭共享到期行事曆 (內建功能)</h2>
+              <span class="calendar-sub">自動對照全家證件/保單到期日，與 LINE 自動推播事件</span>
             </div>
             <div class="calendar-actions">
               <button class="btn btn-secondary btn-sm" id="btnLineNotifySetup">
-                <i class="fa-brands fa-line text-success"></i> LINE 自動推播已開啟
+                <i class="fa-brands fa-line text-success"></i> LINE 自動推播提醒中
               </button>
               <button class="btn btn-primary btn-sm" id="btnExportIcs">
                 <i class="fa-solid fa-calendar-plus"></i> 一鍵同步至 Google/Apple 行事曆
-              </button>
-              <button class="btn btn-ghost btn-sm" id="btnCloseCalendarView">
-                <i class="fa-solid fa-xmark"></i> 關閉行事曆
               </button>
             </div>
           </div>
@@ -276,16 +278,16 @@
       <i class="fa-solid fa-house"></i>
       <span>首頁</span>
     </a>
-    <a href="#" class="nav-tab" data-tab="alert">
-      <i class="fa-solid fa-bell"></i>
-      <span>預警通知</span>
+    <a href="#" class="nav-tab" data-tab="calendar">
+      <i class="fa-solid fa-calendar-days"></i>
+      <span>行事曆</span>
     </a>
     <button class="nav-tab-fab" id="btnFabAdd">
       <i class="fa-solid fa-plus"></i>
     </button>
-    <a href="#" class="nav-tab" data-tab="categories">
-      <i class="fa-solid fa-folder-tree"></i>
-      <span>分類管理</span>
+    <a href="#" class="nav-tab" data-tab="alert">
+      <i class="fa-solid fa-bell"></i>
+      <span>預警通知</span>
     </a>
     <a href="#" class="nav-tab" data-tab="members">
       <i class="fa-solid fa-users"></i>

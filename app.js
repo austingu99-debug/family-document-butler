@@ -275,6 +275,7 @@
     bindEvents();
     updateLoggedInMemberUI();
     renderSidebarAndPills();
+    renderFamilyCalendar();
     renderDocuments();
     updateStats();
   }
