@@ -197,18 +197,26 @@
         <section class="calendar-section" id="calendarSection">
           <div class="calendar-header">
             <div class="calendar-title-group">
-              <h2><i class="fa-solid fa-calendar-check text-primary"></i> 家庭共享到期行事曆 (內建功能)</h2>
-              <span class="calendar-sub">自動對照全家證件/保單到期日，與 LINE 自動推播事件</span>
+              <h2><i class="fa-solid fa-calendar-check text-primary"></i> 家庭共享到期行事曆 (專業版)</h2>
+              <span class="calendar-sub">對照全家證件/保單到期日、自訂大事記與 LINE 提醒</span>
             </div>
+            
             <div class="calendar-actions">
+              <!-- Calendar View Mode Switcher -->
+              <div class="cal-view-switcher">
+                <button class="cal-view-btn active" id="calViewMonthBtn">月視圖</button>
+                <button class="cal-view-btn" id="calViewWeekBtn">週視圖</button>
+                <button class="cal-view-btn" id="calViewAgendaBtn">行程清單</button>
+              </div>
+
               <button class="btn btn-primary btn-sm" id="btnQuickAddCalEvent">
-                <i class="fa-solid fa-plus"></i> 新增行事曆事件
+                <i class="fa-solid fa-plus"></i> 新增事件
               </button>
               <button class="btn btn-secondary btn-sm" id="btnLineNotifySetup">
-                <i class="fa-brands fa-line text-success"></i> LINE 推播中
+                <i class="fa-brands fa-line text-success"></i> LINE 推播
               </button>
               <button class="btn btn-secondary btn-sm" id="btnExportIcs">
-                <i class="fa-solid fa-calendar-plus"></i> 匯出 iCal/Google
+                <i class="fa-solid fa-calendar-plus"></i> 匯出 iCal
               </button>
             </div>
           </div>

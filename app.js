@@ -447,96 +447,205 @@
 
   // Shared Family Calendar Logic & Performance Optimization
   let calendarCurrentDate = new Date(); // Dynamically defaults to actual current month (e.g. 2026-08)
+  let calendarViewMode = 'month'; // 'month', 'week', 'agenda'
 
   function renderFamilyCalendar() {
     const table = document.getElementById('calendarTable');
     const title = document.getElementById('calendarMonthYearTitle');
     if (!table || !title) return;
 
+    if (calendarViewMode === 'agenda') {
+      renderAgendaView(table, title);
+      return;
+    }
+
     const year = calendarCurrentDate.getFullYear();
     const month = calendarCurrentDate.getMonth();
-    title.textContent = `${year} 年 ${month + 1} 月`;
+    title.textContent = `${year} 年 ${month + 1} 月 (${calendarViewMode === 'week' ? '週視圖' : '月視圖'})`;
 
     table.innerHTML = '';
+    table.style.display = 'grid';
 
     const fragment = document.createDocumentFragment();
 
     // Day Headers
     const days = ['日', '一', '二', '三', '四', '五', '六'];
-    days.forEach(d => {
+    days.forEach((d, idx) => {
       const h = document.createElement('div');
-      h.className = 'cal-day-header';
+      h.className = `cal-day-header ${idx === 0 || idx === 6 ? 'weekend' : ''}`;
       h.textContent = d;
       fragment.appendChild(h);
     });
 
-    const firstDay = new Date(year, month, 1).getDay();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-    // Empty Cells for Prev Month
-    for (let i = 0; i < firstDay; i++) {
-      const cell = document.createElement('div');
-      cell.className = 'cal-day-cell other-month';
-      fragment.appendChild(cell);
-    }
-
-    // Days in Current Month
     const today = new Date();
-    for (let day = 1; day <= daysInMonth; day++) {
-      const cell = document.createElement('div');
-      const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === day;
-      cell.className = `cal-day-cell ${isToday ? 'today' : ''}`;
-      
-      const headerDiv = document.createElement('div');
-      headerDiv.className = 'cal-cell-header';
-      headerDiv.innerHTML = `
-        <span class="cal-day-num">${day} ${isToday ? '<span class="today-badge">📍 今天</span>' : ''}</span>
-        <button class="cal-add-btn" title="在此日期新增事件">+</button>
-      `;
-      cell.appendChild(headerDiv);
+    
+    if (calendarViewMode === 'month') {
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-      const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-      cell.setAttribute('data-date', dateStr);
+      // Empty Cells for Prev Month
+      for (let i = 0; i < firstDay; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'cal-day-cell other-month';
+        fragment.appendChild(cell);
+      }
 
-      // Click cell or plus button to add new custom event
-      cell.addEventListener('click', (e) => {
-        if (e.target.closest('.cal-event-pill')) return;
-        openCalEventModal(null, dateStr);
-      });
+      // Days in Current Month
+      for (let day = 1; day <= daysInMonth; day++) {
+        renderCalDayCell(fragment, year, month, day, today);
+      }
+    } else if (calendarViewMode === 'week') {
+      // 7-day Week View (Current Week starting Sunday)
+      const currentDayOfWeek = today.getDay();
+      const sundayDate = new Date(today);
+      sundayDate.setDate(today.getDate() - currentDayOfWeek);
 
-      // 1. Render Matched Custom Events
-      const matchedEvents = customEvents.filter(evt => evt.date === dateStr);
-      matchedEvents.forEach(evt => {
-        const pill = document.createElement('div');
-        pill.className = `cal-event-pill type-${evt.type || 'other'}`;
-        pill.innerHTML = `${evt.title}`;
-        pill.title = `${evt.title} (${evt.notes || '點擊編輯'})`;
-        pill.addEventListener('click', (e) => {
-          e.stopPropagation();
-          openCalEventModal(evt);
-        });
-        cell.appendChild(pill);
-      });
-
-      // 2. Render Matched Document Expiration Events
-      const matchedDocs = documents.filter(d => d.expiryDate === dateStr);
-      matchedDocs.forEach(d => {
-        const s = getExpiryStatus(d.expiryDate);
-        const pill = document.createElement('div');
-        pill.className = `cal-event-pill ${s.code === 'expired' ? 'event-expired' : s.code === 'warning' ? 'event-warning' : 'event-ok'}`;
-        pill.innerHTML = `<i class="fa-solid ${s.code === 'expired' ? 'fa-circle-exclamation' : 'fa-clock'}"></i> ${d.title}`;
-        pill.title = `${d.title} (於 ${d.expiryDate} 到期)`;
-        pill.addEventListener('click', (e) => {
-          e.stopPropagation();
-          openPreviewModal(d);
-        });
-        cell.appendChild(pill);
-      });
-
-      fragment.appendChild(cell);
+      for (let i = 0; i < 7; i++) {
+        const weekDay = new Date(sundayDate);
+        weekDay.setDate(sundayDate.getDate() + i);
+        renderCalDayCell(fragment, weekDay.getFullYear(), weekDay.getMonth(), weekDay.getDate(), today);
+      }
     }
 
     table.appendChild(fragment);
+  }
+
+  function renderCalDayCell(container, year, month, day, today) {
+    const cell = document.createElement('div');
+    const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === day;
+    cell.className = `cal-day-cell ${isToday ? 'today' : ''}`;
+    
+    const headerDiv = document.createElement('div');
+    headerDiv.className = 'cal-cell-header';
+    headerDiv.innerHTML = `
+      <span class="cal-day-num">${day} ${isToday ? '<span class="today-badge">📍 今天</span>' : ''}</span>
+      <button class="cal-add-btn" title="在此日期新增事件">+</button>
+    `;
+    cell.appendChild(headerDiv);
+
+    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    cell.setAttribute('data-date', dateStr);
+
+    cell.addEventListener('click', (e) => {
+      if (e.target.closest('.cal-event-pill')) return;
+      openCalEventModal(null, dateStr);
+    });
+
+    // 1. Render Matched Custom Events
+    const matchedEvents = customEvents.filter(evt => evt.date === dateStr);
+    matchedEvents.forEach(evt => {
+      const pill = document.createElement('div');
+      pill.className = `cal-event-pill type-${evt.type || 'other'}`;
+      pill.innerHTML = `${evt.title}`;
+      pill.title = `${evt.title} (${evt.notes || '點擊編輯'})`;
+      pill.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openCalEventModal(evt);
+      });
+      cell.appendChild(pill);
+    });
+
+    // 2. Render Matched Document Expiration Events
+    const matchedDocs = documents.filter(d => d.expiryDate === dateStr);
+    matchedDocs.forEach(d => {
+      const s = getExpiryStatus(d.expiryDate);
+      const pill = document.createElement('div');
+      pill.className = `cal-event-pill ${s.code === 'expired' ? 'event-expired' : s.code === 'warning' ? 'event-warning' : 'event-ok'}`;
+      pill.innerHTML = `<i class="fa-solid ${s.code === 'expired' ? 'fa-circle-exclamation' : 'fa-clock'}"></i> ${d.title}`;
+      pill.title = `${d.title} (於 ${d.expiryDate} 到期)`;
+      pill.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openPreviewModal(d);
+      });
+      cell.appendChild(pill);
+    });
+
+    container.appendChild(cell);
+  }
+
+  // Render Agenda Schedule View (Chronological List View)
+  function renderAgendaView(table, title) {
+    title.textContent = '全家行程與到期預警清單 (Agenda View)';
+    table.style.display = 'block';
+    table.innerHTML = '';
+
+    const container = document.createElement('div');
+    container.className = 'cal-agenda-container';
+
+    // Combine customEvents and expiring documents
+    let combined = [];
+
+    customEvents.forEach(evt => {
+      const mem = members.find(m => m.id === evt.memberId) || { name: '全家', avatar: '🏠' };
+      combined.push({
+        id: evt.id,
+        title: evt.title,
+        date: evt.date,
+        typeLabel: '行事曆事件',
+        badgeClass: `type-${evt.type || 'other'}`,
+        memberStr: `${mem.avatar} ${mem.name}`,
+        notes: evt.notes || '無額外備註',
+        rawObj: evt,
+        isDoc: false
+      });
+    });
+
+    documents.forEach(doc => {
+      if (doc.expiryDate) {
+        const mem = members.find(m => m.id === doc.memberId) || { name: '全家', avatar: '🏠' };
+        const status = getExpiryStatus(doc.expiryDate);
+        combined.push({
+          id: doc.id,
+          title: `證件到期：${doc.title}`,
+          date: doc.expiryDate,
+          typeLabel: status.label,
+          badgeClass: status.class,
+          memberStr: `${mem.avatar} ${mem.name}`,
+          notes: doc.notes || '請留意證件/保單有效期限',
+          rawObj: doc,
+          isDoc: true
+        });
+      }
+    });
+
+    // Sort Chronologically
+    combined.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    if (combined.length === 0) {
+      container.innerHTML = '<div class="empty-state"><h3>目前尚無任何行程與到期事件</h3></div>';
+    } else {
+      combined.forEach(item => {
+        const dObj = new Date(item.date);
+        const row = document.createElement('div');
+        row.className = 'agenda-item-row';
+        row.innerHTML = `
+          <div class="agenda-date-badge">
+            <span class="day-num">${dObj.getDate() || '1'}</span>
+            <span class="month-name">${dObj.getMonth() + 1} 月</span>
+          </div>
+          <div class="agenda-info">
+            <div class="agenda-title">${item.title}</div>
+            <div class="agenda-meta">
+              <span>${item.memberStr}</span>
+              <span><i class="fa-solid fa-calendar-day"></i> ${item.date}</span>
+              <span>${item.notes}</span>
+            </div>
+          </div>
+          <button class="btn btn-secondary btn-sm" data-action="open-item">
+            <i class="fa-solid ${item.isDoc ? 'fa-eye' : 'fa-pen'}"></i> ${item.isDoc ? '查看文件' : '編輯事件'}
+          </button>
+        `;
+
+        row.querySelector('[data-action="open-item"]').addEventListener('click', () => {
+          if (item.isDoc) openPreviewModal(item.rawObj);
+          else openCalEventModal(item.rawObj);
+        });
+
+        container.appendChild(row);
+      });
+    }
+
+    table.appendChild(container);
   }
 
   // Open Add/Edit Calendar Event Modal
@@ -599,6 +708,41 @@
   // Bind Event Listeners
   function bindEvents() {
     registerPWA();
+
+    // Calendar View Mode Switcher Triggers
+    const btnViewMonth = document.getElementById('calViewMonthBtn');
+    const btnViewWeek = document.getElementById('calViewWeekBtn');
+    const btnViewAgenda = document.getElementById('calViewAgendaBtn');
+
+    if (btnViewMonth) {
+      btnViewMonth.addEventListener('click', () => {
+        calendarViewMode = 'month';
+        btnViewMonth.classList.add('active');
+        if (btnViewWeek) btnViewWeek.classList.remove('active');
+        if (btnViewAgenda) btnViewAgenda.classList.remove('active');
+        renderFamilyCalendar();
+      });
+    }
+
+    if (btnViewWeek) {
+      btnViewWeek.addEventListener('click', () => {
+        calendarViewMode = 'week';
+        btnViewWeek.classList.add('active');
+        if (btnViewMonth) btnViewMonth.classList.remove('active');
+        if (btnViewAgenda) btnViewAgenda.classList.remove('active');
+        renderFamilyCalendar();
+      });
+    }
+
+    if (btnViewAgenda) {
+      btnViewAgenda.addEventListener('click', () => {
+        calendarViewMode = 'agenda';
+        btnViewAgenda.classList.add('active');
+        if (btnViewMonth) btnViewMonth.classList.remove('active');
+        if (btnViewWeek) btnViewWeek.classList.remove('active');
+        renderFamilyCalendar();
+      });
+    }
 
     // Quick Add Bar & Plus Button Handler
     const btnQuickAddCalEvent = document.getElementById('btnQuickAddCalEvent');
