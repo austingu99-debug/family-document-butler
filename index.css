@@ -1843,7 +1843,7 @@ button, input, select, textarea {
   border-radius: var(--radius-md);
 }
 
-/* Responsive Media Queries */
+/* Responsive Media Queries & Mobile Perfection */
 @media (max-width: 900px) {
   .sidebar {
     transform: translateX(-100%);
@@ -1855,7 +1855,7 @@ button, input, select, textarea {
 
   .main-content {
     margin-left: 0;
-    padding: 16px 16px 90px;
+    padding: 16px 16px 100px;
   }
 
   .mobile-toggle-btn {
@@ -1864,6 +1864,7 @@ button, input, select, textarea {
 
   .mobile-bottom-nav {
     display: flex;
+    padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
   }
 
   .btn-add-doc-mobile {
@@ -1880,6 +1881,70 @@ button, input, select, textarea {
 
   .form-row {
     grid-template-columns: 1fr;
+  }
+
+  .modal-card {
+    width: 95vw;
+    max-width: 95vw;
+    max-height: 88vh;
+    border-radius: 20px;
+  }
+}
+
+/* Extra Small Mobile Devices (iPhone / Android Portrait) */
+@media (max-width: 600px) {
+  .app-header {
+    padding: 0 14px;
+    height: 60px;
+  }
+
+  .logo-title {
+    font-size: 15px;
+  }
+
+  .logo-subtitle {
+    display: none;
+  }
+
+  .fc .fc-toolbar {
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+  }
+
+  .fc .fc-toolbar-title {
+    font-size: 15px;
+    text-align: center;
+  }
+
+  .fc .fc-button {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+
+  .fullcalendar-container {
+    padding: 10px;
+    min-height: 440px;
+  }
+
+  .cal-member-filters {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    width: 100%;
+    padding-bottom: 6px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .cal-member-chip {
+    flex-shrink: 0;
+  }
+
+  /* Prevent iOS Safari input auto-zoom */
+  input[type="text"],
+  input[type="date"],
+  select,
+  textarea {
+    font-size: 16px !important;
   }
 }
 
