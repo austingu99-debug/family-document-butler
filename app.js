@@ -709,6 +709,65 @@
   function bindEvents() {
     registerPWA();
 
+    // Sidebar Menu Items Click Handlers (解決點擊行事曆與各維度沒反應問題)
+    document.querySelectorAll('.sidebar .menu-item[data-filter-type]').forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
+        document.querySelectorAll('.sidebar .menu-item').forEach(m => m.classList.remove('active'));
+        item.classList.add('active');
+
+        const filterType = item.getAttribute('data-filter-type');
+        const calSection = document.getElementById('calendarSection');
+
+        if (filterType === 'calendar') {
+          if (calSection) {
+            calSection.style.display = 'block';
+            renderFamilyCalendar();
+            calSection.scrollIntoView({ behavior: 'smooth' });
+          }
+        } else if (filterType === 'all') {
+          resetFilters();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else if (filterType === 'alert') {
+          currentStatusFilter = 'alert';
+          renderDocuments();
+          document.getElementById('documentsContainer').scrollIntoView({ behavior: 'smooth' });
+        } else if (filterType === 'recent') {
+          el.sortSelect.value = 'created-desc';
+          renderDocuments();
+        }
+      });
+    });
+
+    // Mobile Bottom Tab Bar Click Handlers (解決手機點擊行事曆分頁沒反應問題)
+    document.querySelectorAll('.mobile-bottom-nav .nav-tab').forEach(tab => {
+      tab.addEventListener('click', (e) => {
+        e.preventDefault();
+        document.querySelectorAll('.mobile-bottom-nav .nav-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+
+        const tabType = tab.getAttribute('data-tab');
+        const calSection = document.getElementById('calendarSection');
+
+        if (tabType === 'calendar') {
+          if (calSection) {
+            calSection.style.display = 'block';
+            renderFamilyCalendar();
+            calSection.scrollIntoView({ behavior: 'smooth' });
+          }
+        } else if (tabType === 'all') {
+          resetFilters();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else if (tabType === 'alert') {
+          currentStatusFilter = 'alert';
+          renderDocuments();
+          document.getElementById('documentsContainer').scrollIntoView({ behavior: 'smooth' });
+        } else if (tabType === 'members') {
+          openMemberManageModal();
+        }
+      });
+    });
+
     // Calendar View Mode Switcher Triggers
     const btnViewMonth = document.getElementById('calViewMonthBtn');
     const btnViewWeek = document.getElementById('calViewWeekBtn');
