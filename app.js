@@ -479,15 +479,19 @@
       // 1. Custom Family Events
       (customEvents || []).forEach(evt => {
         let color = '#6366f1'; // primary
-        if (evt.type === 'birthday') color = '#ec4899'; // pink
+        if (evt.customColor) color = evt.customColor;
+        else if (evt.type === 'birthday') color = '#ec4899'; // pink
         else if (evt.type === 'medical') color = '#ef4444'; // red
         else if (evt.type === 'payment') color = '#f59e0b'; // amber
         else if (evt.type === 'vehicle') color = '#3b82f6'; // blue
         else if (evt.type === 'document') color = '#8b5cf6'; // purple
+        else if (evt.type === 'custom') color = evt.customColor || '#06b6d4'; // cyan
+
+        const displayTitle = evt.customTypeName ? `${evt.customTypeName}: ${evt.title}` : evt.title;
 
         fcEvents.push({
           id: evt.id,
-          title: evt.title,
+          title: displayTitle,
           start: evt.date,
           backgroundColor: color,
           borderColor: color,
@@ -648,8 +652,20 @@
     const notesInput = document.getElementById('calEventNotes');
     const btnDelete = document.getElementById('btnDeleteCalEvent');
 
+    const customTypeGroup = document.getElementById('calEventCustomTypeGroup');
+    const customTypeNameInput = document.getElementById('calEventCustomTypeName');
+    const customColorInput = document.getElementById('calEventCustomColor');
+
     if (!modal) return;
     memberSelect.innerHTML = members.map(m => `<option value="${m.id}">${m.avatar} ${m.name}</option>`).join('');
+
+    typeSelect.onchange = () => {
+      if (typeSelect.value === 'custom') {
+        if (customTypeGroup) customTypeGroup.style.display = 'flex';
+      } else {
+        if (customTypeGroup) customTypeGroup.style.display = 'none';
+      }
+    };
 
     if (evtToEdit) {
       document.getElementById('calEventModalTitle').innerHTML = `<i class="fa-solid fa-pen-to-square"></i> 編輯行事曆事件`;
@@ -657,6 +673,16 @@
       titleInput.value = evtToEdit.title;
       dateInput.value = evtToEdit.date;
       typeSelect.value = evtToEdit.type || 'other';
+
+      if (evtToEdit.type === 'custom' || evtToEdit.customTypeName) {
+        typeSelect.value = 'custom';
+        if (customTypeGroup) customTypeGroup.style.display = 'flex';
+        if (customTypeNameInput) customTypeNameInput.value = evtToEdit.customTypeName || '';
+        if (customColorInput) customColorInput.value = evtToEdit.customColor || '#06b6d4';
+      } else {
+        if (customTypeGroup) customTypeGroup.style.display = 'none';
+      }
+
       memberSelect.value = evtToEdit.memberId || members[0].id;
       notesInput.value = evtToEdit.notes || '';
       if (btnDelete) {
@@ -668,6 +694,7 @@
       form.reset();
       editId.value = '';
       dateInput.value = prefillDate || new Date().toISOString().split('T')[0];
+      if (customTypeGroup) customTypeGroup.style.display = 'none';
       if (btnDelete) btnDelete.style.display = 'none';
     }
 
@@ -875,12 +902,19 @@
         const memberId = document.getElementById('calEventMember').value;
         const notes = document.getElementById('calEventNotes').value.trim();
 
+        const customTypeNameInput = document.getElementById('calEventCustomTypeName');
+        const customColorInput = document.getElementById('calEventCustomColor');
+        const customTypeName = customTypeNameInput ? customTypeNameInput.value.trim() : '';
+        const customColor = customColorInput ? customColorInput.value : '#06b6d4';
+
         if (id) {
           const evt = customEvents.find(ev => ev.id === id);
           if (evt) {
             evt.title = title;
             evt.date = date;
             evt.type = type;
+            evt.customTypeName = type === 'custom' ? customTypeName : '';
+            evt.customColor = type === 'custom' ? customColor : '';
             evt.memberId = memberId;
             evt.notes = notes;
           }
@@ -891,6 +925,8 @@
             title,
             date,
             type,
+            customTypeName: type === 'custom' ? customTypeName : '',
+            customColor: type === 'custom' ? customColor : '',
             memberId,
             notes
           };

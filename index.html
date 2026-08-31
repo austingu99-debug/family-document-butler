@@ -614,7 +614,20 @@
               <option value="vehicle">🚗 車輛維護</option>
               <option value="document">📄 證件/合約</option>
               <option value="other">📌 一般記事</option>
+              <option value="custom">✨ 自訂新類型...</option>
             </select>
+          </div>
+        </div>
+
+        <!-- Dynamic Custom Type Row (Shows when "custom" selected) -->
+        <div class="form-row mt-2" id="calEventCustomTypeGroup" style="display: none;">
+          <div class="form-group">
+            <label for="calEventCustomTypeName">自訂類型名稱 (如：🏕️ 露營旅遊)</label>
+            <input type="text" id="calEventCustomTypeName" class="form-control" placeholder="輸入類型名稱與 Emoji...">
+          </div>
+          <div class="form-group">
+            <label for="calEventCustomColor">標籤色彩</label>
+            <input type="color" id="calEventCustomColor" class="form-control form-control-color" value="#06b6d4">
           </div>
         </div>
 

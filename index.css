@@ -1027,6 +1027,15 @@ button, input, select, textarea {
   box-shadow: 0 0 0 2px var(--primary-light);
 }
 
+.form-control-color {
+  height: 42px;
+  padding: 4px 8px;
+  cursor: pointer;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
 .input-with-action {
   display: flex;
   gap: 8px;
