@@ -294,6 +294,28 @@
     renderFamilyCalendar();
     renderDocuments();
     updateStats();
+
+    // Start Realtime Header Clock Ticker
+    startRealtimeClock();
+  }
+
+  function startRealtimeClock() {
+    const clockEl = document.getElementById('headerRealtimeClock');
+    if (!clockEl) return;
+
+    const updateClock = () => {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      const hh = String(now.getHours()).padStart(2, '0');
+      const mm = String(now.getMinutes()).padStart(2, '0');
+      const ss = String(now.getSeconds()).padStart(2, '0');
+      clockEl.textContent = `${y}-${m}-${d} ${hh}:${mm}:${ss}`;
+    };
+
+    updateClock();
+    setInterval(updateClock, 1000);
   }
 
   // Update Logged in Member Header & Sidebar Profile
@@ -1140,6 +1162,14 @@
     });
 
     // AI Assistant Modal Triggers
+    const btnAiAuditTop = document.getElementById('btnAiAuditTop');
+    if (btnAiAuditTop) {
+      btnAiAuditTop.addEventListener('click', () => {
+        openAiModal();
+        sendUserAiMessage('請幫全家進行文件健檢與到期分析');
+      });
+    }
+
     el.btnOpenAiAssistant.addEventListener('click', openAiModal);
     el.btnCloseAiModal.addEventListener('click', () => el.aiModal.classList.remove('active'));
     el.btnSendAi.addEventListener('click', () => sendUserAiMessage(el.aiInput.value));
@@ -1517,17 +1547,20 @@
         el.previewImg.src = 'https://images.unsplash.com/photo-1568667256549-094345857637?w=200&auto=format&fit=crop&q=80';
       }
 
-      // Simulate AI OCR Auto Extraction
+      // Trigger AI OCR Scan Laser Animation Beam
+      if (el.dropzone) el.dropzone.classList.add('scanning');
       el.ocrStatusBox.style.display = 'flex';
+
       setTimeout(() => {
+        if (el.dropzone) el.dropzone.classList.remove('scanning');
         el.ocrStatusBox.style.display = 'none';
         // Auto fill sample values if empty
         if (!el.docTitle.value) {
           const cleanName = file.name.replace(/\.[^/.]+$/, "");
           el.docTitle.value = cleanName;
         }
-        showToast('AI 已成功完成圖片 OCR 與文字特徵提取模擬', 'fa-wand-magic-sparkles');
-      }, 1200);
+        showToast('AI 已成功完成證件 OCR 雷射掃描與特徵提取！', 'fa-wand-magic-sparkles');
+      }, 1500);
     }
   }
 

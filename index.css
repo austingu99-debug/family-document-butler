@@ -894,6 +894,33 @@ button, input, select, textarea {
   transform: scale(1);
 }
 
+/* Header Glow & Realtime Widget */
+.logo-icon-glow {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 18px;
+  box-shadow: 0 0 16px rgba(99, 102, 241, 0.4);
+}
+
+.realtime-widget {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-color);
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
 .modal-header {
   padding: 18px 24px;
   border-bottom: 1px solid var(--border-color);
