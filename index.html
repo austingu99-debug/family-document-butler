@@ -15,6 +15,14 @@
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="index.css">
+
+  <!-- PWA & Mobile App Support -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#6366f1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="家庭文件小管家">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3767/3767084.png">
 </head>
 <body class="dark-theme">
   
@@ -110,6 +118,12 @@
         </div>
 
         <div class="header-actions">
+          <!-- PWA Install App Button -->
+          <button class="btn btn-secondary btn-icon-text" id="btnInstallApp" style="display: none;">
+            <i class="fa-solid fa-mobile-screen-button text-primary"></i>
+            <span class="desktop-only">安裝 App</span>
+          </button>
+
           <!-- AI Assistant Floating Action Button in Header -->
           <button class="btn btn-accent btn-icon-text" id="btnOpenAiAssistant">
             <i class="fa-solid fa-wand-magic-sparkles"></i>

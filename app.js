@@ -409,8 +409,44 @@
     return `根據全家文件庫分析，關於「${query}」目前暫無直接匹配的記錄。您可以點擊「新增/上傳文件」將此類證件拍照歸檔！`;
   }
 
+  // Register PWA Service Worker & Install Prompt
+  let deferredInstallPrompt = null;
+  function registerPWA() {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js')
+        .then(() => console.log('Service Worker Registered Successfully!'))
+        .catch(err => console.error('SW Reg Error:', err));
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+      const btn = document.getElementById('btnInstallApp');
+      if (btn) btn.style.display = 'inline-flex';
+    });
+
+    const btnInstall = document.getElementById('btnInstallApp');
+    if (btnInstall) {
+      btnInstall.addEventListener('click', () => {
+        if (deferredInstallPrompt) {
+          deferredInstallPrompt.prompt();
+          deferredInstallPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+              showToast('已成功將「家庭文件小管家」安裝至您的手機/電腦主畫面！', 'fa-mobile-screen-button');
+              btnInstall.style.display = 'none';
+            }
+            deferredInstallPrompt = null;
+          });
+        } else {
+          alert('提示：在 iOS (Safari) 點擊分享選單中的「加入主畫面」，即可安裝為手機 App！');
+        }
+      });
+    }
+  }
+
   // Bind Event Listeners
   function bindEvents() {
+    registerPWA();
     // LINE Login & Google OAuth Triggers
     const btnLine = document.getElementById('btnLineLogin');
     const btnGoogle = document.getElementById('btnGoogleLogin');
