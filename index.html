@@ -234,9 +234,14 @@
           
           <div class="calendar-grid-container mt-3">
             <div class="calendar-month-bar">
-              <button class="icon-btn-sm" id="btnPrevMonth" title="上個月"><i class="fa-solid fa-chevron-left"></i></button>
-              <h3 id="calendarMonthYearTitle">2026 年 9 月</h3>
-              <button class="icon-btn-sm" id="btnNextMonth" title="下個月"><i class="fa-solid fa-chevron-right"></i></button>
+              <div class="month-nav-group">
+                <button class="icon-btn-sm" id="btnPrevMonth" title="上個月"><i class="fa-solid fa-chevron-left"></i></button>
+                <h3 id="calendarMonthYearTitle">2026 年 9 月</h3>
+                <button class="icon-btn-sm" id="btnNextMonth" title="下個月"><i class="fa-solid fa-chevron-right"></i></button>
+              </div>
+              <button class="btn btn-secondary btn-sm" id="btnCalToday">
+                <i class="fa-solid fa-location-crosshairs text-primary"></i> 回到今天
+              </button>
             </div>
             <div class="calendar-table" id="calendarTable">
               <!-- Dynamic Calendar Grid -->
@@ -657,6 +662,9 @@
         </div>
 
         <div class="modal-footer">
+          <button type="button" class="btn btn-danger-soft" id="btnDeleteCalEvent" style="display: none;">
+            <i class="fa-solid fa-trash-can"></i> 刪除事件
+          </button>
           <button type="button" class="btn btn-secondary" id="btnCancelCalEventModal">取消</button>
           <button type="submit" class="btn btn-primary">儲存行事曆事件</button>
         </div>

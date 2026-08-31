@@ -631,6 +631,28 @@ button, input, select, textarea {
   min-width: 0;
 }
 
+.calendar-month-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: var(--radius-md);
+  margin-bottom: 14px;
+}
+
+.month-nav-group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.calendar-month-bar h3 {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
 .doc-title-row {
   display: flex;
   align-items: center;

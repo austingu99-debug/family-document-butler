@@ -676,7 +676,9 @@
     const typeSelect = document.getElementById('calEventType');
     const memberSelect = document.getElementById('calEventMember');
     const notesInput = document.getElementById('calEventNotes');
+    const btnDelete = document.getElementById('btnDeleteCalEvent');
 
+    if (!modal) return;
     memberSelect.innerHTML = members.map(m => `<option value="${m.id}">${m.avatar} ${m.name}</option>`).join('');
 
     if (evtToEdit) {
@@ -687,14 +689,30 @@
       typeSelect.value = evtToEdit.type || 'other';
       memberSelect.value = evtToEdit.memberId || members[0].id;
       notesInput.value = evtToEdit.notes || '';
+      if (btnDelete) {
+        btnDelete.style.display = 'inline-flex';
+        btnDelete.onclick = () => deleteCalEvent(evtToEdit.id);
+      }
     } else {
       document.getElementById('calEventModalTitle').innerHTML = `<i class="fa-solid fa-calendar-plus"></i> 新增家庭行事曆事件`;
       form.reset();
       editId.value = '';
       dateInput.value = prefillDate || new Date().toISOString().split('T')[0];
+      if (btnDelete) btnDelete.style.display = 'none';
     }
 
     modal.classList.add('active');
+  }
+
+  function deleteCalEvent(eventId) {
+    const evt = customEvents.find(e => e.id === eventId);
+    if (evt && confirm(`確定要刪除行程事件「${evt.title}」嗎？`)) {
+      customEvents = customEvents.filter(e => e.id !== eventId);
+      saveState(STORAGE_EVENTS_KEY, customEvents);
+      document.getElementById('calEventModal').classList.remove('active');
+      renderFamilyCalendar();
+      showToast(`已刪除行事曆事件「${evt.title}」`, 'fa-trash-can');
+    }
   }
 
   function exportIcsFile() {
@@ -936,6 +954,17 @@
     if (btnCloseCal) {
       btnCloseCal.addEventListener('click', () => {
         calSection.style.display = 'none';
+      });
+    }
+
+    const btnCalToday = document.getElementById('btnCalToday');
+    if (btnCalToday) {
+      btnCalToday.addEventListener('click', () => {
+        const todayNow = new Date();
+        currentCalYear = todayNow.getFullYear();
+        currentCalMonth = todayNow.getMonth();
+        renderFamilyCalendar();
+        showToast('已回到目前當月 Today 行事曆視圖！', 'fa-location-crosshairs');
       });
     }
 
