@@ -445,8 +445,10 @@
     }
   }
 
-  // Shared Family Calendar Logic & Performance Optimization
-  let calendarCurrentDate = new Date(); // Dynamically defaults to actual current month (e.g. 2026-08)
+  // Shared Family Calendar Logic & Performance Optimization (Bug-free Date Math)
+  const now = new Date();
+  let currentCalYear = now.getFullYear();
+  let currentCalMonth = now.getMonth(); // 0-indexed (0=Jan, 7=Aug)
   let calendarViewMode = 'month'; // 'month', 'week', 'agenda'
 
   function renderFamilyCalendar() {
@@ -459,8 +461,8 @@
       return;
     }
 
-    const year = calendarCurrentDate.getFullYear();
-    const month = calendarCurrentDate.getMonth();
+    const year = currentCalYear;
+    const month = currentCalMonth;
     title.textContent = `${year} 年 ${month + 1} 月 (${calendarViewMode === 'week' ? '週視圖' : '月視圖'})`;
 
     table.innerHTML = '';
@@ -923,14 +925,22 @@
 
     if (btnPrevMonth) {
       btnPrevMonth.addEventListener('click', () => {
-        calendarCurrentDate.setMonth(calendarCurrentDate.getMonth() - 1);
+        currentCalMonth--;
+        if (currentCalMonth < 0) {
+          currentCalMonth = 11;
+          currentCalYear--;
+        }
         renderFamilyCalendar();
       });
     }
 
     if (btnNextMonth) {
       btnNextMonth.addEventListener('click', () => {
-        calendarCurrentDate.setMonth(calendarCurrentDate.getMonth() + 1);
+        currentCalMonth++;
+        if (currentCalMonth > 11) {
+          currentCalMonth = 0;
+          currentCalYear++;
+        }
         renderFamilyCalendar();
       });
     }
