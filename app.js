@@ -113,9 +113,15 @@
   ];
 
   // App State
+  const STORAGE_EVENTS_KEY = 'fdb_custom_events_v1';
+
   let categories = loadState(STORAGE_CATS_KEY, defaultCategories);
   let members = loadState(STORAGE_MEMBERS_KEY, defaultMembers);
   let documents = loadState(STORAGE_DOCS_KEY, defaultDocuments);
+  let customEvents = loadState(STORAGE_EVENTS_KEY, defaultCustomEvents);
+  if (!Array.isArray(customEvents) || customEvents.length === 0) {
+    customEvents = defaultCustomEvents;
+  }
   let currentLoggedInMemberId = loadState('fdb_current_member_id_v1', 'mem-dad');
 
   let currentCategoryFilter = 'all'; // 'all' or categoryId
