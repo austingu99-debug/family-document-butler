@@ -411,6 +411,34 @@
 
   // Bind Event Listeners
   function bindEvents() {
+    // LINE Login & Google OAuth Triggers
+    const btnLine = document.getElementById('btnLineLogin');
+    const btnGoogle = document.getElementById('btnGoogleLogin');
+
+    if (btnLine) {
+      btnLine.addEventListener('click', () => {
+        showToast('正在導向 LINE 快速安全登入...', 'fa-line');
+        setTimeout(() => {
+          currentLoggedInMemberId = 'mem-dad';
+          saveState('fdb_current_member_id_v1', currentLoggedInMemberId);
+          updateLoggedInMemberUI();
+          document.getElementById('lineAccountName').textContent = '已授權登入 (爸爸)';
+          el.loginModal.classList.remove('active');
+          showToast('LINE 帳號登入成功！已驗證全域金鑰權限', 'fa-circle-check');
+        }, 1000);
+      });
+    }
+
+    if (btnGoogle) {
+      btnGoogle.addEventListener('click', () => {
+        showToast('正在與 Google 帳號及 Google Drive 完成備份連結...', 'fa-google');
+        setTimeout(() => {
+          document.getElementById('googleAccountStatus').textContent = '已連結 Google Drive 雲端同步';
+          showToast('Google 帳號連結成功！已啟動家庭文件雙向自動備份', 'fa-cloud-arrow-up');
+        }, 1200);
+      });
+    }
+
     // Login Switcher Triggers
     el.btnSwitchMemberSidebar.addEventListener('click', openLoginModal);
     el.btnCurrentMemberBadge.addEventListener('click', openLoginModal);

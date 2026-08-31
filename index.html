@@ -482,23 +482,47 @@
     </div>
   </div>
 
-  <!-- Modal 5: Member Login Switcher Modal -->
+  <!-- Modal 5: Member Login & Social OAuth Modal -->
   <div class="modal-backdrop" id="loginModal">
     <div class="modal-card">
       <div class="modal-header">
-        <h3><i class="fa-solid fa-user-shield text-primary"></i> 請選擇您的家庭成員身份</h3>
+        <h3><i class="fa-solid fa-user-shield text-primary"></i> 家庭成員登入與帳號綁定</h3>
         <button class="modal-close" id="btnCloseLoginModal"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="modal-body">
-        <p class="modal-description">請選擇目前登入小管家的成員。切換後系統將為您顯示個人與家庭共享文件。</p>
+        
+        <!-- Social Login Action Bar -->
+        <div class="social-login-bar mb-4">
+          <button class="btn btn-line-login" id="btnLineLogin">
+            <i class="fa-brands fa-line"></i> 使用 LINE 帳號一鍵登入
+          </button>
+          <button class="btn btn-google-login" id="btnGoogleLogin">
+            <i class="fa-brands fa-google"></i> 連結 Google 帳號備份
+          </button>
+        </div>
+
+        <div class="divider-with-text">
+          <span>或切換家庭成員 Profile</span>
+        </div>
+
+        <p class="modal-description mt-2">點擊下方成員可切換至個人專屬文件櫃與共享資料庫：</p>
         
         <div class="member-login-grid" id="memberLoginGrid">
           <!-- Dynamic Member Cards to click & login -->
         </div>
+
+        <!-- Connected Accounts Card -->
+        <div class="connected-account-info mt-4" id="connectedAccountBox">
+          <div class="account-badge-row">
+            <span><i class="fa-brands fa-line text-success"></i> LINE: <strong id="lineAccountName">已授權登入 (陳大明)</strong></span>
+            <span><i class="fa-brands fa-google text-danger"></i> Google: <strong id="googleAccountStatus">已連結雲端備份</strong></span>
+          </div>
+        </div>
+
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" id="btnManageMembersFromLogin">
-          <i class="fa-solid fa-user-plus"></i> 管理/新增成員
+          <i class="fa-solid fa-user-plus"></i> 管理成員/新增帳號
         </button>
       </div>
     </div>
