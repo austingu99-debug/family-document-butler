@@ -1274,7 +1274,7 @@ button, input, select, textarea {
 }
 
 .cal-day-cell {
-  min-height: 85px;
+  min-height: 95px;
   background: rgba(0, 0, 0, 0.25);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
@@ -1283,15 +1283,34 @@ button, input, select, textarea {
   flex-direction: column;
   gap: 4px;
   font-size: 11px;
+  cursor: pointer;
+  position: relative;
+  transition: all var(--transition-fast);
+}
+
+.cal-day-cell:hover {
+  border-color: var(--primary);
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.cal-day-cell:hover::after {
+  content: '+ 新增';
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  font-size: 10px;
+  color: var(--primary);
+  font-weight: 700;
 }
 
 .cal-day-cell.other-month {
-  opacity: 0.3;
+  opacity: 0.25;
 }
 
 .cal-day-cell.today {
   border-color: var(--primary);
   background: var(--primary-light);
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.2);
 }
 
 .cal-day-num {
@@ -1312,22 +1331,20 @@ button, input, select, textarea {
   display: flex;
   align-items: center;
   gap: 4px;
+  transition: transform var(--transition-fast);
 }
 
-.cal-event-pill.event-expired {
-  background: var(--danger-bg);
-  color: var(--danger);
+.cal-event-pill:hover {
+  transform: scale(1.03);
 }
 
-.cal-event-pill.event-warning {
-  background: var(--warning-bg);
-  color: var(--warning);
-}
-
-.cal-event-pill.event-ok {
-  background: var(--primary-light);
-  color: var(--primary);
-}
+.cal-event-pill.event-expired { background: var(--danger-bg); color: var(--danger); }
+.cal-event-pill.event-warning { background: var(--warning-bg); color: var(--warning); }
+.cal-event-pill.event-ok { background: var(--primary-light); color: var(--primary); }
+.cal-event-pill.type-birthday { background: rgba(236, 72, 153, 0.2); color: #f472b6; }
+.cal-event-pill.type-medical { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+.cal-event-pill.type-payment { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+.cal-event-pill.type-vehicle { background: rgba(16, 185, 129, 0.2); color: #34d399; }
 
 /* Social Login & OAuth Buttons */
 .social-login-bar {

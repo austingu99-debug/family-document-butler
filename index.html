@@ -576,7 +576,71 @@
     </div>
   </div>
 
-  <!-- Modal 6: AI Document Assistant Chat & Audit Modal -->
+  <!-- Modal 7: Add/Edit Custom Family Calendar Event Modal -->
+  <div class="modal-backdrop" id="calEventModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="calEventModalTitle"><i class="fa-solid fa-calendar-plus text-primary"></i> 新增家庭行事曆事件</h3>
+        <button class="modal-close" id="btnCloseCalEventModal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="calEventForm" class="modal-body">
+        <input type="hidden" id="editCalEventId" value="">
+
+        <div class="form-group">
+          <label for="calEventTitle">事件名稱 / 提醒事項 <span class="text-danger">*</span></label>
+          <input type="text" id="calEventTitle" class="form-control" placeholder="例如：媽媽生日慶祝、車輛定期保養、繳納房屋稅..." required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="calEventDate">事件日期 <span class="text-danger">*</span></label>
+            <input type="date" id="calEventDate" class="form-control" required>
+          </div>
+
+          <div class="form-group">
+            <label for="calEventType">事件類型 <span class="text-danger">*</span></label>
+            <select id="calEventType" class="form-control" required>
+              <option value="birthday">🎉 慶生節慶</option>
+              <option value="medical">🏥 醫療健檢</option>
+              <option value="payment">💳 繳費/財務</option>
+              <option value="vehicle">🚗 車輛維護</option>
+              <option value="document">📄 證件/合約</option>
+              <option value="other">📌 一般記事</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="calEventMember">相關成員</label>
+            <select id="calEventMember" class="form-control">
+              <!-- Dynamic Members -->
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="calEventNotify">LINE 自動推播提醒</label>
+            <select id="calEventNotify" class="form-control">
+              <option value="7">提前 7 天推播</option>
+              <option value="3">提前 3 天推播</option>
+              <option value="1">當天上午 9:00 推播</option>
+              <option value="0">不推播</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="calEventNotes">詳細備註</label>
+          <textarea id="calEventNotes" class="form-control" rows="2" placeholder="備註細節、預約號碼或注意事項..."></textarea>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btnCancelCalEventModal">取消</button>
+          <button type="submit" class="btn btn-primary">儲存行事曆事件</button>
+        </div>
+      </form>
+    </div>
+  </div>
   <div class="modal-backdrop" id="aiModal">
     <div class="modal-card modal-lg">
       <div class="modal-header">

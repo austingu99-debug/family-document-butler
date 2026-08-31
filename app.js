@@ -445,7 +445,7 @@
     }
   }
 
-  // Shared Family Calendar Logic
+  // Shared Family Calendar Logic & Performance Optimization
   let calendarCurrentDate = new Date(2026, 8, 1); // 2026-09-01 default
 
   function renderFamilyCalendar() {
@@ -459,13 +459,15 @@
 
     table.innerHTML = '';
 
+    const fragment = document.createDocumentFragment();
+
     // Day Headers
     const days = ['日', '一', '二', '三', '四', '五', '六'];
     days.forEach(d => {
       const h = document.createElement('div');
       h.className = 'cal-day-header';
       h.textContent = d;
-      table.appendChild(h);
+      fragment.appendChild(h);
     });
 
     const firstDay = new Date(year, month, 1).getDay();
@@ -475,7 +477,7 @@
     for (let i = 0; i < firstDay; i++) {
       const cell = document.createElement('div');
       cell.className = 'cal-day-cell other-month';
-      table.appendChild(cell);
+      fragment.appendChild(cell);
     }
 
     // Days in Current Month
@@ -490,22 +492,80 @@
       numSpan.textContent = day;
       cell.appendChild(numSpan);
 
-      // Match Documents Expiry on this date
       const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-      const matchedDocs = documents.filter(d => d.expiryDate === dateStr);
+      cell.setAttribute('data-date', dateStr);
 
+      // Click day cell to add new custom event
+      cell.addEventListener('click', (e) => {
+        // Prevent if clicked directly on an event pill
+        if (e.target.closest('.cal-event-pill')) return;
+        openCalEventModal(null, dateStr);
+      });
+
+      // 1. Render Matched Custom Events
+      const matchedEvents = customEvents.filter(evt => evt.date === dateStr);
+      matchedEvents.forEach(evt => {
+        const pill = document.createElement('div');
+        pill.className = `cal-event-pill type-${evt.type || 'other'}`;
+        pill.innerHTML = `${evt.title}`;
+        pill.title = `${evt.title} (${evt.notes || '點擊編輯'})`;
+        pill.addEventListener('click', (e) => {
+          e.stopPropagation();
+          openCalEventModal(evt);
+        });
+        cell.appendChild(pill);
+      });
+
+      // 2. Render Matched Document Expiration Events
+      const matchedDocs = documents.filter(d => d.expiryDate === dateStr);
       matchedDocs.forEach(d => {
         const s = getExpiryStatus(d.expiryDate);
         const pill = document.createElement('div');
         pill.className = `cal-event-pill ${s.code === 'expired' ? 'event-expired' : s.code === 'warning' ? 'event-warning' : 'event-ok'}`;
         pill.innerHTML = `<i class="fa-solid ${s.code === 'expired' ? 'fa-circle-exclamation' : 'fa-clock'}"></i> ${d.title}`;
         pill.title = `${d.title} (於 ${d.expiryDate} 到期)`;
-        pill.addEventListener('click', () => openPreviewModal(d));
+        pill.addEventListener('click', (e) => {
+          e.stopPropagation();
+          openPreviewModal(d);
+        });
         cell.appendChild(pill);
       });
 
-      table.appendChild(cell);
+      fragment.appendChild(cell);
     }
+
+    table.appendChild(fragment);
+  }
+
+  // Open Add/Edit Calendar Event Modal
+  function openCalEventModal(evtToEdit = null, prefillDate = '') {
+    const modal = document.getElementById('calEventModal');
+    const form = document.getElementById('calEventForm');
+    const editId = document.getElementById('editCalEventId');
+    const titleInput = document.getElementById('calEventTitle');
+    const dateInput = document.getElementById('calEventDate');
+    const typeSelect = document.getElementById('calEventType');
+    const memberSelect = document.getElementById('calEventMember');
+    const notesInput = document.getElementById('calEventNotes');
+
+    memberSelect.innerHTML = members.map(m => `<option value="${m.id}">${m.avatar} ${m.name}</option>`).join('');
+
+    if (evtToEdit) {
+      document.getElementById('calEventModalTitle').innerHTML = `<i class="fa-solid fa-pen-to-square"></i> 編輯行事曆事件`;
+      editId.value = evtToEdit.id;
+      titleInput.value = evtToEdit.title;
+      dateInput.value = evtToEdit.date;
+      typeSelect.value = evtToEdit.type || 'other';
+      memberSelect.value = evtToEdit.memberId || members[0].id;
+      notesInput.value = evtToEdit.notes || '';
+    } else {
+      document.getElementById('calEventModalTitle').innerHTML = `<i class="fa-solid fa-calendar-plus"></i> 新增家庭行事曆事件`;
+      form.reset();
+      editId.value = '';
+      dateInput.value = prefillDate || new Date().toISOString().split('T')[0];
+    }
+
+    modal.classList.add('active');
   }
 
   function exportIcsFile() {
@@ -537,6 +597,54 @@
   // Bind Event Listeners
   function bindEvents() {
     registerPWA();
+
+    // Custom Calendar Event Form Submit
+    const calEventForm = document.getElementById('calEventForm');
+    const calEventModal = document.getElementById('calEventModal');
+    const btnCloseCalEvent = document.getElementById('btnCloseCalEventModal');
+    const btnCancelCalEvent = document.getElementById('btnCancelCalEventModal');
+
+    if (btnCloseCalEvent) btnCloseCalEvent.addEventListener('click', () => calEventModal.classList.remove('active'));
+    if (btnCancelCalEvent) btnCancelCalEvent.addEventListener('click', () => calEventModal.classList.remove('active'));
+
+    if (calEventForm) {
+      calEventForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const id = document.getElementById('editCalEventId').value;
+        const title = document.getElementById('calEventTitle').value.trim();
+        const date = document.getElementById('calEventDate').value;
+        const type = document.getElementById('calEventType').value;
+        const memberId = document.getElementById('calEventMember').value;
+        const notes = document.getElementById('calEventNotes').value.trim();
+
+        if (id) {
+          const evt = customEvents.find(ev => ev.id === id);
+          if (evt) {
+            evt.title = title;
+            evt.date = date;
+            evt.type = type;
+            evt.memberId = memberId;
+            evt.notes = notes;
+          }
+          showToast(`已成功更新行事曆事件「${title}」！`);
+        } else {
+          const newEvt = {
+            id: 'evt-' + Date.now(),
+            title,
+            date,
+            type,
+            memberId,
+            notes
+          };
+          customEvents.push(newEvt);
+          showToast(`已新增行事曆事件「${title}」至 ${date}！`);
+        }
+
+        saveState(STORAGE_EVENTS_KEY, customEvents);
+        calEventModal.classList.remove('active');
+        renderFamilyCalendar();
+      });
+    }
 
     // Shared Family Calendar Events
     const btnCalStat = document.getElementById('btnOpenCalendarStat');
