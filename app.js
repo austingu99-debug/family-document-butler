@@ -10,6 +10,16 @@
   const STORAGE_CATS_KEY = 'fdb_categories_v1';
   const STORAGE_MEMBERS_KEY = 'fdb_members_v1';
 
+  // Default Custom Calendar Events Data (Rich Demonstration)
+  const defaultCustomEvents = [
+    { id: 'evt-1', title: '🎂 媽媽生日家庭聚餐', date: '2026-09-20', type: 'birthday', memberId: 'mem-mom', notes: '已訂好海鮮餐廳，記得攜帶生日蛋糕' },
+    { id: 'evt-2', title: '🚗 汽車定期保養與排氣檢驗', date: '2026-09-28', type: 'vehicle', memberId: 'mem-dad', notes: '保養廠預約 10:00 AM' },
+    { id: 'evt-3', title: '💳 房屋地方稅與地價稅繳納', date: '2026-09-10', type: 'payment', memberId: 'mem-all', notes: '線上信用卡轉帳扣款' },
+    { id: 'evt-4', title: '🏥 奶奶定期心臟科回診', date: '2026-09-05', type: 'medical', memberId: 'mem-all', notes: '台大醫院診間 204，上午 9:30' },
+    { id: 'evt-5', title: '🎒 兒子小明新學期開學', date: '2026-09-01', type: 'birthday', memberId: 'mem-child', notes: '記得繳交學生健保卡與學雜費收據' },
+    { id: 'evt-6', title: '📄 爸爸護照到期預警 (換發)', date: '2026-09-15', type: 'document', memberId: 'mem-dad', notes: '領事事務局預約辦理' }
+  ];
+
   // Default Categories Data (Extensible & Renamable)
   const defaultCategories = [
     { id: 'cat-id', name: '身份證件', icon: 'fa-id-card', color: '#6366f1' },

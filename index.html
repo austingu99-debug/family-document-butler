@@ -195,44 +195,48 @@
 
         <!-- Shared Family Calendar Section (Default Built-in View) -->
         <section class="calendar-section" id="calendarSection">
-          <div class="calendar-header">
+          <div class="calendar-header-card">
             <div class="calendar-title-group">
-              <h2><i class="fa-solid fa-calendar-check text-primary"></i> 家庭共享到期行事曆 (專業版)</h2>
-              <span class="calendar-sub">對照全家證件/保單到期日、自訂大事記與 LINE 提醒</span>
+              <h2><i class="fa-solid fa-calendar-check text-primary"></i> 家庭共享行事曆看板</h2>
+              <span class="calendar-sub">全家證件/保單到期預警 + 家族大事記與 LINE 提醒</span>
             </div>
             
-            <div class="calendar-actions">
-              <!-- Calendar View Mode Switcher -->
-              <div class="cal-view-switcher">
-                <button class="cal-view-btn active" id="calViewMonthBtn">月視圖</button>
-                <button class="cal-view-btn" id="calViewWeekBtn">週視圖</button>
-                <button class="cal-view-btn" id="calViewAgendaBtn">行程清單</button>
+            <div class="calendar-toolbar">
+              <!-- Segmented View Switcher -->
+              <div class="segmented-control" id="calViewSwitcher">
+                <button class="segmented-btn active" id="calViewMonthBtn"><i class="fa-solid fa-calendar-grid"></i> 月視圖</button>
+                <button class="segmented-btn" id="calViewWeekBtn"><i class="fa-solid fa-calendar-week"></i> 週視圖</button>
+                <button class="segmented-btn" id="calViewAgendaBtn"><i class="fa-solid fa-list-check"></i> 行程清單</button>
               </div>
 
-              <button class="btn btn-primary btn-sm" id="btnQuickAddCalEvent">
-                <i class="fa-solid fa-plus"></i> 新增事件
-              </button>
-              <button class="btn btn-secondary btn-sm" id="btnLineNotifySetup">
-                <i class="fa-brands fa-line text-success"></i> LINE 推播
-              </button>
-              <button class="btn btn-secondary btn-sm" id="btnExportIcs">
-                <i class="fa-solid fa-calendar-plus"></i> 匯出 iCal
-              </button>
+              <div class="toolbar-btn-group">
+                <button class="btn btn-primary btn-sm" id="btnQuickAddCalEvent">
+                  <i class="fa-solid fa-plus"></i> 新增事件
+                </button>
+                <button class="btn btn-secondary btn-sm" id="btnLineNotifySetup">
+                  <i class="fa-brands fa-line text-success"></i> LINE 推播
+                </button>
+                <button class="btn btn-secondary btn-sm" id="btnExportIcs">
+                  <i class="fa-solid fa-calendar-plus"></i> 匯出 iCal
+                </button>
+              </div>
             </div>
           </div>
 
-          <!-- Quick Add Bar -->
-          <div class="calendar-quick-add-bar mt-3">
-            <i class="fa-solid fa-wand-magic-sparkles text-primary"></i>
-            <input type="text" id="quickCalInput" class="form-control" placeholder="快速新增行事曆 (例如: 8/31 媽媽生日聚餐, 9/15 汽車定期保養)...">
-            <button class="btn btn-primary btn-sm" id="btnSubmitQuickCal">一鍵加入行事曆</button>
+          <!-- Compact Smart Quick Add Bar -->
+          <div class="calendar-smart-input-bar mt-3">
+            <div class="smart-input-wrapper">
+              <i class="fa-solid fa-wand-magic-sparkles text-accent"></i>
+              <input type="text" id="quickCalInput" placeholder="AI 快捷輸入... (例如：9/20 媽媽生日聚餐、9/28 汽車保養、9/10 繳房屋稅)">
+              <button class="btn btn-accent btn-sm" id="btnSubmitQuickCal">一鍵加入</button>
+            </div>
           </div>
           
           <div class="calendar-grid-container mt-3">
             <div class="calendar-month-bar">
-              <button class="icon-btn-sm" id="btnPrevMonth"><i class="fa-solid fa-chevron-left"></i></button>
+              <button class="icon-btn-sm" id="btnPrevMonth" title="上個月"><i class="fa-solid fa-chevron-left"></i></button>
               <h3 id="calendarMonthYearTitle">2026 年 9 月</h3>
-              <button class="icon-btn-sm" id="btnNextMonth"><i class="fa-solid fa-chevron-right"></i></button>
+              <button class="icon-btn-sm" id="btnNextMonth" title="下個月"><i class="fa-solid fa-chevron-right"></i></button>
             </div>
             <div class="calendar-table" id="calendarTable">
               <!-- Dynamic Calendar Grid -->
