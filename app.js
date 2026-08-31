@@ -10,15 +10,8 @@
   const STORAGE_CATS_KEY = 'fdb_categories_v1';
   const STORAGE_MEMBERS_KEY = 'fdb_members_v1';
 
-  // Default Custom Calendar Events Data (Rich Demonstration)
-  const defaultCustomEvents = [
-    { id: 'evt-1', title: '🎂 媽媽生日家庭聚餐', date: '2026-09-20', type: 'birthday', memberId: 'mem-mom', notes: '已訂好海鮮餐廳，記得攜帶生日蛋糕' },
-    { id: 'evt-2', title: '🚗 汽車定期保養與排氣檢驗', date: '2026-09-28', type: 'vehicle', memberId: 'mem-dad', notes: '保養廠預約 10:00 AM' },
-    { id: 'evt-3', title: '💳 房屋地方稅與地價稅繳納', date: '2026-09-10', type: 'payment', memberId: 'mem-all', notes: '線上信用卡轉帳扣款' },
-    { id: 'evt-4', title: '🏥 奶奶定期心臟科回診', date: '2026-09-05', type: 'medical', memberId: 'mem-all', notes: '台大醫院診間 204，上午 9:30' },
-    { id: 'evt-5', title: '🎒 兒子小明新學期開學', date: '2026-09-01', type: 'birthday', memberId: 'mem-child', notes: '記得繳交學生健保卡與學雜費收據' },
-    { id: 'evt-6', title: '📄 爸爸護照到期預警 (換發)', date: '2026-09-15', type: 'document', memberId: 'mem-dad', notes: '領事事務局預約辦理' }
-  ];
+  // Default Custom Calendar Events Data (Starts Clean with 0 Demo Items)
+  const defaultCustomEvents = [];
 
   // Default Categories Data (Extensible & Renamable)
   const defaultCategories = [
@@ -33,84 +26,13 @@
   // Default Family Members Data (Extensible & Renamable)
   const defaultMembers = [
     { id: 'mem-all', name: '全家共有', avatar: '🏠' },
-    { id: 'mem-dad', name: '爸爸 (陳大明)', avatar: '👨' },
-    { id: 'mem-mom', name: '媽媽 (林美玲)', avatar: '👩' },
-    { id: 'mem-child', name: '兒子 (陳小明)', avatar: '👦' }
+    { id: 'mem-dad', name: '爸爸', avatar: '👨' },
+    { id: 'mem-mom', name: '媽媽', avatar: '👩' },
+    { id: 'mem-child', name: '孩子', avatar: '👦' }
   ];
 
-  // Mock Document Data (Rich Initial Demonstration)
-  const defaultDocuments = [
-    {
-      id: 'doc-1',
-      title: '爸爸中華民國護照',
-      categoryId: 'cat-id',
-      memberId: 'mem-dad',
-      expiryDate: '2026-09-15', // 30天內到期範例
-      docNo: '312849501',
-      tags: ['護照', '出國', '急件'],
-      notes: '放在二樓主臥房防潮箱第2格',
-      ocrText: 'REPUBLIC OF CHINA PASSPORT / 姓名: CHEN TA-MING / 效期至: 2026-09-15',
-      fileType: 'image',
-      fileUrl: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=600&auto=format&fit=crop&q=80',
-      createdAt: '2026-01-10'
-    },
-    {
-      id: 'doc-2',
-      title: '汽車強制險與任意險保單',
-      categoryId: 'cat-property',
-      memberId: 'mem-all',
-      expiryDate: '2026-08-01', // 已逾期範例
-      docNo: 'INS-2025-998822',
-      tags: ['車險', '國泰產險', '車輛'],
-      notes: '每年8月記得線上續保繳費',
-      ocrText: '富邦/國泰汽車保險單 / 車號: ABC-8888 / 保障期間: 2025/08/01 - 2026/08/01',
-      fileType: 'pdf',
-      fileUrl: '',
-      createdAt: '2025-08-01'
-    },
-    {
-      id: 'doc-3',
-      title: '台北房屋租賃合約書',
-      categoryId: 'cat-property',
-      memberId: 'mem-all',
-      expiryDate: '2027-06-30', // 有效範例
-      docNo: 'LEASE-2025-06',
-      tags: ['租約', '房東房客', '房屋'],
-      notes: '押金兩個月共NT$50,000，押金收據在附件',
-      ocrText: '房屋租賃契約書 / 出租人: 張三 / 承租人: 陳大明 / 租期: 2025-07-01至2027-06-30',
-      fileType: 'image',
-      fileUrl: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600&auto=format&fit=crop&q=80',
-      createdAt: '2025-07-01'
-    },
-    {
-      id: 'doc-4',
-      title: '兒子小明健保卡',
-      categoryId: 'cat-id',
-      memberId: 'mem-child',
-      expiryDate: '', // 永久有效
-      docNo: 'H123456789',
-      tags: ['健保卡', '醫療', '證件'],
-      notes: '隨身卡包或家中緊急醫藥包',
-      ocrText: '全民健康保險卡 / 姓名: 陳小明 / 身分證字號: A123456789',
-      fileType: 'image',
-      fileUrl: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?w=600&auto=format&fit=crop&q=80',
-      createdAt: '2026-02-15'
-    },
-    {
-      id: 'doc-5',
-      title: '媽媽終身醫療防癌險保單',
-      categoryId: 'cat-medical',
-      memberId: 'mem-mom',
-      expiryDate: '2045-12-31',
-      docNo: 'LIFE-88771122',
-      tags: ['醫療險', '防癌險', '保險'],
-      notes: '理賠專員電話: 0912-345-678',
-      ocrText: '人壽終身醫療保險契據 / 保險人: 林美玲 / 年繳保費: 28,000元',
-      fileType: 'pdf',
-      fileUrl: '',
-      createdAt: '2024-05-20'
-    }
-  ];
+  // Mock Document Data (Starts 100% Clean with 0 Demo Items)
+  const defaultDocuments = [];
 
   // App State
   const STORAGE_EVENTS_KEY = 'fdb_custom_events_v1';
@@ -119,9 +41,6 @@
   let members = loadState(STORAGE_MEMBERS_KEY, defaultMembers);
   let documents = loadState(STORAGE_DOCS_KEY, defaultDocuments);
   let customEvents = loadState(STORAGE_EVENTS_KEY, defaultCustomEvents);
-  if (!Array.isArray(customEvents) || customEvents.length === 0) {
-    customEvents = defaultCustomEvents;
-  }
   let currentLoggedInMemberId = loadState('fdb_current_member_id_v1', 'mem-dad');
 
   let currentCategoryFilter = 'all'; // 'all' or categoryId
@@ -875,7 +794,7 @@
       });
     });
 
-    // Mobile Bottom Tab Bar Click Handlers (解決手機點擊行事曆分頁沒反應問題)
+    // Mobile Bottom Tab Bar Click Handlers (全流暢分頁切換)
     document.querySelectorAll('.mobile-bottom-nav .nav-tab').forEach(tab => {
       tab.addEventListener('click', (e) => {
         e.preventDefault();
@@ -884,22 +803,27 @@
 
         const tabType = tab.getAttribute('data-tab');
         const calSection = document.getElementById('calendarSection');
+        const docsContainer = document.getElementById('documentsContainer');
 
         if (tabType === 'calendar') {
           if (calSection) {
             calSection.style.display = 'block';
             renderFamilyCalendar();
+            setTimeout(() => {
+              if (calendarInstance) calendarInstance.updateSize();
+            }, 100);
             calSection.scrollIntoView({ behavior: 'smooth' });
           }
         } else if (tabType === 'all') {
           resetFilters();
+          if (calSection) calSection.style.display = 'block';
           window.scrollTo({ top: 0, behavior: 'smooth' });
         } else if (tabType === 'alert') {
           currentStatusFilter = 'alert';
           renderDocuments();
-          document.getElementById('documentsContainer').scrollIntoView({ behavior: 'smooth' });
+          if (docsContainer) docsContainer.scrollIntoView({ behavior: 'smooth' });
         } else if (tabType === 'members') {
-          openMemberManageModal();
+          openLoginModal();
         }
       });
     });
