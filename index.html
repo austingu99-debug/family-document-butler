@@ -201,13 +201,23 @@
               <span class="calendar-sub">自動對照全家證件/保單到期日，與 LINE 自動推播事件</span>
             </div>
             <div class="calendar-actions">
-              <button class="btn btn-secondary btn-sm" id="btnLineNotifySetup">
-                <i class="fa-brands fa-line text-success"></i> LINE 自動推播提醒中
+              <button class="btn btn-primary btn-sm" id="btnQuickAddCalEvent">
+                <i class="fa-solid fa-plus"></i> 新增行事曆事件
               </button>
-              <button class="btn btn-primary btn-sm" id="btnExportIcs">
-                <i class="fa-solid fa-calendar-plus"></i> 一鍵同步至 Google/Apple 行事曆
+              <button class="btn btn-secondary btn-sm" id="btnLineNotifySetup">
+                <i class="fa-brands fa-line text-success"></i> LINE 推播中
+              </button>
+              <button class="btn btn-secondary btn-sm" id="btnExportIcs">
+                <i class="fa-solid fa-calendar-plus"></i> 匯出 iCal/Google
               </button>
             </div>
+          </div>
+
+          <!-- Quick Add Bar -->
+          <div class="calendar-quick-add-bar mt-3">
+            <i class="fa-solid fa-wand-magic-sparkles text-primary"></i>
+            <input type="text" id="quickCalInput" class="form-control" placeholder="快速新增行事曆 (例如: 8/31 媽媽生日聚餐, 9/15 汽車定期保養)...">
+            <button class="btn btn-primary btn-sm" id="btnSubmitQuickCal">一鍵加入行事曆</button>
           </div>
           
           <div class="calendar-grid-container mt-3">

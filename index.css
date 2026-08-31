@@ -1273,6 +1273,26 @@ button, input, select, textarea {
   padding: 6px 0;
 }
 
+/* Quick Add Bar & Cell Plus Button */
+.calendar-quick-add-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--border-color);
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+}
+
+.calendar-quick-add-bar input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text-main);
+  outline: none;
+  font-size: 13px;
+}
+
 .cal-day-cell {
   min-height: 95px;
   background: rgba(0, 0, 0, 0.25);
@@ -1290,27 +1310,55 @@ button, input, select, textarea {
 
 .cal-day-cell:hover {
   border-color: var(--primary);
-  background: rgba(99, 102, 241, 0.1);
+  background: rgba(99, 102, 241, 0.12);
 }
 
-.cal-day-cell:hover::after {
-  content: '+ 新增';
-  position: absolute;
-  top: 4px;
-  right: 6px;
+.cal-cell-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.cal-add-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: var(--text-muted);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 10px;
-  color: var(--primary);
-  font-weight: 700;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: all var(--transition-fast);
+}
+
+.cal-day-cell:hover .cal-add-btn {
+  opacity: 1;
+  background: var(--primary);
+  color: #fff;
 }
 
 .cal-day-cell.other-month {
-  opacity: 0.25;
+  opacity: 0.2;
 }
 
 .cal-day-cell.today {
   border-color: var(--primary);
   background: var(--primary-light);
-  box-shadow: 0 0 10px rgba(99, 102, 241, 0.2);
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.25);
+}
+
+.today-badge {
+  background: var(--primary);
+  color: #fff;
+  font-size: 9px;
+  padding: 1px 5px;
+  border-radius: var(--radius-full);
+  font-weight: 700;
 }
 
 .cal-day-num {

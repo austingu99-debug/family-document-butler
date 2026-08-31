@@ -446,7 +446,7 @@
   }
 
   // Shared Family Calendar Logic & Performance Optimization
-  let calendarCurrentDate = new Date(2026, 8, 1); // 2026-09-01 default
+  let calendarCurrentDate = new Date(); // Dynamically defaults to actual current month (e.g. 2026-08)
 
   function renderFamilyCalendar() {
     const table = document.getElementById('calendarTable');
@@ -487,17 +487,19 @@
       const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === day;
       cell.className = `cal-day-cell ${isToday ? 'today' : ''}`;
       
-      const numSpan = document.createElement('span');
-      numSpan.className = 'cal-day-num';
-      numSpan.textContent = day;
-      cell.appendChild(numSpan);
+      const headerDiv = document.createElement('div');
+      headerDiv.className = 'cal-cell-header';
+      headerDiv.innerHTML = `
+        <span class="cal-day-num">${day} ${isToday ? '<span class="today-badge">📍 今天</span>' : ''}</span>
+        <button class="cal-add-btn" title="在此日期新增事件">+</button>
+      `;
+      cell.appendChild(headerDiv);
 
       const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
       cell.setAttribute('data-date', dateStr);
 
-      // Click day cell to add new custom event
+      // Click cell or plus button to add new custom event
       cell.addEventListener('click', (e) => {
-        // Prevent if clicked directly on an event pill
         if (e.target.closest('.cal-event-pill')) return;
         openCalEventModal(null, dateStr);
       });
@@ -597,6 +599,53 @@
   // Bind Event Listeners
   function bindEvents() {
     registerPWA();
+
+    // Quick Add Bar & Plus Button Handler
+    const btnQuickAddCalEvent = document.getElementById('btnQuickAddCalEvent');
+    const btnSubmitQuickCal = document.getElementById('btnSubmitQuickCal');
+    const quickCalInput = document.getElementById('quickCalInput');
+
+    if (btnQuickAddCalEvent) {
+      btnQuickAddCalEvent.addEventListener('click', () => openCalEventModal());
+    }
+
+    if (btnSubmitQuickCal && quickCalInput) {
+      const handleQuickSubmit = () => {
+        const text = quickCalInput.value.trim();
+        if (!text) return;
+
+        // Try extracting date if typed (e.g., "8/31 媽媽生日")
+        let targetDate = new Date().toISOString().split('T')[0];
+        const dateMatch = text.match(/(\d{1,2})[\/\-](\d{1,2})/);
+        if (dateMatch) {
+          const m = String(dateMatch[1]).padStart(2, '0');
+          const d = String(dateMatch[2]).padStart(2, '0');
+          targetDate = `${new Date().getFullYear()}-${m}-${d}`;
+        }
+
+        const cleanTitle = text.replace(/(\d{1,2})[\/\-](\d{1,2})/, '').trim() || text;
+
+        const newEvt = {
+          id: 'evt-' + Date.now(),
+          title: cleanTitle,
+          date: targetDate,
+          type: 'other',
+          memberId: currentLoggedInMemberId,
+          notes: '快速輸入新增'
+        };
+
+        customEvents.push(newEvt);
+        saveState(STORAGE_EVENTS_KEY, customEvents);
+        quickCalInput.value = '';
+        renderFamilyCalendar();
+        showToast(`已成功將「${cleanTitle}」加入 ${targetDate} 的行事曆！`, 'fa-calendar-plus');
+      };
+
+      btnSubmitQuickCal.addEventListener('click', handleQuickSubmit);
+      quickCalInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleQuickSubmit();
+      });
+    }
 
     // Custom Calendar Event Form Submit
     const calEventForm = document.getElementById('calEventForm');
