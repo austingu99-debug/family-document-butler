@@ -112,24 +112,43 @@
     <!-- Main Content Area -->
     <main class="main-content">
       
-      <!-- Top Header & Search Bar -->
-      <header class="top-header">
-        <button class="mobile-toggle-btn" id="mobileMenuBtn">
-          <i class="fa-solid fa-bars"></i>
-        </button>
-        
+      <!-- Unified App Header -->
+      <header class="app-header">
+        <div class="header-left">
+          <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="選單">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div class="app-logo">
+            <div class="logo-icon-glow">
+              <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <span class="logo-title">家庭文件小管家</span>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <button class="btn btn-accent btn-sm" id="btnOpenAiAssistant">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> <span class="d-none-mobile">AI 管家</span>
+          </button>
+          <button class="current-member-badge" id="btnCurrentMemberBadge" title="切換成員">
+            <span id="currentMemberAvatar">👨</span>
+          </button>
+          <button class="btn btn-primary btn-sm" id="btnOpenAddDocTop">
+            <i class="fa-solid fa-plus"></i> <span class="d-none-mobile">新增</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Main Search & Action Bar -->
+      <div class="main-search-bar mt-3">
         <div class="search-box">
           <i class="fa-solid fa-magnifying-glass search-icon"></i>
-          <input type="text" id="searchInput" placeholder="搜尋文件名稱、關鍵字、AI 標籤或證號...">
+          <input type="text" id="searchInput" placeholder="搜尋文件、保單、護照、關鍵字或證號...">
           <button class="clear-search-btn" id="clearSearchBtn" style="display: none;">
             <i class="fa-solid fa-xmark"></i>
           </button>
         </div>
-          <button class="btn btn-primary btn-add-doc-mobile" id="btnOpenAddDocTop">
-            <i class="fa-solid fa-plus"></i>
-          </button>
-        </div>
-      </header>
+      </div>
 
       <!-- Dashboard Body -->
       <div class="dashboard-body">
