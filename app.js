@@ -430,9 +430,11 @@
   let deferredInstallPrompt = null;
   function registerPWA() {
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js')
-        .then(() => console.log('Service Worker Registered Successfully!'))
-        .catch(err => console.error('SW Reg Error:', err));
+      navigator.serviceWorker.getRegistrations().then(registrations => {
+        for (let registration of registrations) {
+          registration.unregister();
+        }
+      });
     }
 
     window.addEventListener('beforeinstallprompt', (e) => {
