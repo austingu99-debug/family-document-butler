@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>家庭文件小管家 | Family Document Butler</title>
+  
+  <!-- Google Fonts: Outfit & Noto Sans TC -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome for rich icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="index.css">
+</head>
+<body class="dark-theme">
+  
+  <div class="app-layout">
+    
+    <!-- Sidebar Navigation (Desktop) -->
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-logo">
+          <i class="fa-solid fa-vault"></i>
+        </div>
+        <div class="brand-text">
+          <h2>家庭文件小管家</h2>
+          <span>Family Doc Butler</span>
+        </div>
+      </div>
+
+      <button class="btn btn-primary btn-add-doc" id="btnOpenAddDoc">
+        <i class="fa-solid fa-cloud-arrow-up"></i>
+        <span>新增/上傳文件</span>
+      </button>
+
+      <nav class="sidebar-menu">
+        <div class="menu-section-title">檢視維度</div>
+        <a href="#" class="menu-item active" data-filter-type="all">
+          <i class="fa-solid fa-layer-group"></i>
+          <span>全部文件</span>
+          <span class="badge" id="badgeTotalDocs">0</span>
+        </a>
+        <a href="#" class="menu-item" data-filter-type="alert">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span>到期預警</span>
+          <span class="badge badge-warning" id="badgeAlertDocs">0</span>
+        </a>
+        <a href="#" class="menu-item" data-filter-type="recent">
+          <i class="fa-solid fa-clock-rotate-left"></i>
+          <span>近期新增</span>
+        </a>
+
+        <div class="menu-section-title section-title-with-btn">
+          <span>文件分類</span>
+          <button class="icon-btn-sm" id="btnManageCategories" title="管理/新增分類">
+            <i class="fa-solid fa-gear"></i>
+          </button>
+        </div>
+        <div class="category-list" id="sidebarCategories">
+          <!-- Dynamic Category Items -->
+        </div>
+        <button class="btn btn-ghost btn-sm text-left mt-2" id="btnAddCategoryQuick">
+          <i class="fa-solid fa-plus"></i> 新增自訂分類
+        </button>
+
+        <div class="menu-section-title section-title-with-btn mt-4">
+          <span>家庭成員</span>
+          <button class="icon-btn-sm" id="btnManageMembers" title="管理家庭成員">
+            <i class="fa-solid fa-user-gear"></i>
+          </button>
+        </div>
+        <div class="member-list" id="sidebarMembers">
+          <!-- Dynamic Member Items -->
+        </div>
+        <button class="btn btn-ghost btn-sm text-left mt-2" id="btnAddMemberQuick">
+          <i class="fa-solid fa-user-plus"></i> 新增家庭成員
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-profile clickable" id="btnSwitchMemberSidebar" title="點擊切換登入成員">
+          <div class="avatar" id="sidebarMemberAvatar">👨</div>
+          <div class="user-info">
+            <h4 id="sidebarMemberName">爸爸 (陳大明)</h4>
+            <p>目前登入中 <i class="fa-solid fa-right-from-bracket text-primary"></i></p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      
+      <!-- Top Header & Search Bar -->
+      <header class="top-header">
+        <button class="mobile-toggle-btn" id="mobileMenuBtn">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input type="text" id="searchInput" placeholder="搜尋文件名稱、關鍵字、AI 標籤或證號...">
+          <button class="clear-search-btn" id="clearSearchBtn" style="display: none;">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <div class="header-actions">
+          <!-- AI Assistant Floating Action Button in Header -->
+          <button class="btn btn-accent btn-icon-text" id="btnOpenAiAssistant">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <span>AI 智慧管家</span>
+          </button>
+
+          <!-- Current Member Login Badge Button -->
+          <button class="btn btn-secondary btn-icon-text" id="btnCurrentMemberBadge">
+            <span id="currentMemberAvatar">👨</span>
+            <span id="currentMemberName" class="desktop-only">爸爸 (登入中)</span>
+          </button>
+
+          <button class="btn btn-primary btn-add-doc-mobile" id="btnOpenAddDocTop">
+            <i class="fa-solid fa-plus"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- Dashboard Body -->
+      <div class="dashboard-body">
+        
+        <!-- Summary Stats Cards -->
+        <section class="stats-grid">
+          <div class="stat-card" data-stat-click="all">
+            <div class="stat-icon icon-blue">
+              <i class="fa-solid fa-folder-open"></i>
+            </div>
+            <div class="stat-data">
+              <span class="stat-title">總收錄文件</span>
+              <h3 class="stat-value" id="statTotal">0</h3>
+            </div>
+          </div>
+
+          <div class="stat-card" data-stat-click="expired">
+            <div class="stat-icon icon-red">
+              <i class="fa-solid fa-circle-exclamation"></i>
+            </div>
+            <div class="stat-data">
+              <span class="stat-title">已逾期提醒</span>
+              <h3 class="stat-value text-danger" id="statExpired">0</h3>
+            </div>
+          </div>
+
+          <div class="stat-card" data-stat-click="expiring">
+            <div class="stat-icon icon-orange">
+              <i class="fa-solid fa-clock"></i>
+            </div>
+            <div class="stat-data">
+              <span class="stat-title">30天內到期</span>
+              <h3 class="stat-value text-warning" id="statExpiring">0</h3>
+            </div>
+          </div>
+
+          <div class="stat-card" data-stat-click="categories">
+            <div class="stat-icon icon-purple">
+              <i class="fa-solid fa-tags"></i>
+            </div>
+            <div class="stat-data">
+              <span class="stat-title">文件分類數</span>
+              <h3 class="stat-value" id="statCategories">0</h3>
+            </div>
+          </div>
+        </section>
+
+        <!-- Dynamic Filter Bar & Quick Tags -->
+        <section class="filter-section">
+          <div class="filter-header">
+            <h2 id="currentFilterTitle" class="section-title">全部文件檔</h2>
+            <div class="filter-controls">
+              <select id="sortSelect" class="form-select-sm">
+                <option value="expiry-asc">到期日：最近到期優先</option>
+                <option value="created-desc">上傳時間：最新優先</option>
+                <option value="title-asc">名稱：A 到 Z</option>
+              </select>
+              
+              <div class="view-toggle">
+                <button class="view-btn active" id="viewGridBtn" title="網格檢視">
+                  <i class="fa-solid fa-border-all"></i>
+                </button>
+                <button class="view-btn" id="viewListBtn" title="清單檢視">
+                  <i class="fa-solid fa-list"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Horizontal Category Scroll Bar -->
+          <div class="category-pills" id="categoryPills">
+            <!-- Dynamic Pills -->
+          </div>
+        </section>
+
+        <!-- Document Grid / List Container -->
+        <section class="documents-container grid-view" id="documentsContainer">
+          <!-- Dynamic Document Cards -->
+        </section>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+          <div class="empty-icon">
+            <i class="fa-solid fa-folder-minus"></i>
+          </div>
+          <h3>未找到任何相關文件</h3>
+          <p>請嘗試切換搜尋關鍵字、變更分類過濾，或點擊下方按鈕新增文件。</p>
+          <button class="btn btn-primary" id="btnEmptyAdd">
+            <i class="fa-solid fa-plus"></i> 立即新增第一份文件
+          </button>
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Mobile Bottom Tab Bar -->
+  <nav class="mobile-bottom-nav">
+    <a href="#" class="nav-tab active" data-tab="all">
+      <i class="fa-solid fa-house"></i>
+      <span>首頁</span>
+    </a>
+    <a href="#" class="nav-tab" data-tab="alert">
+      <i class="fa-solid fa-bell"></i>
+      <span>預警通知</span>
+    </a>
+    <button class="nav-tab-fab" id="btnFabAdd">
+      <i class="fa-solid fa-plus"></i>
+    </button>
+    <a href="#" class="nav-tab" data-tab="categories">
+      <i class="fa-solid fa-folder-tree"></i>
+      <span>分類管理</span>
+    </a>
+    <a href="#" class="nav-tab" data-tab="members">
+      <i class="fa-solid fa-users"></i>
+      <span>家庭成員</span>
+    </a>
+  </nav>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- Modal 1: Add / Edit Document Modal -->
+  <div class="modal-backdrop" id="docModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="docModalTitle"><i class="fa-solid fa-file-circle-plus"></i> 新增家庭文件</h3>
+        <button class="modal-close" id="btnCloseDocModal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="docForm" class="modal-body">
+        <input type="hidden" id="editDocId" value="">
+
+        <!-- File Upload Area -->
+        <div class="upload-dropzone" id="dropzone">
+          <i class="fa-solid fa-cloud-arrow-up dropzone-icon"></i>
+          <p class="dropzone-text">點擊上傳或拖拽圖片/PDF檔至此處</p>
+          <span class="dropzone-sub">支援 JPG, PNG, PDF (系統將自動進行 OCR 識別模擬)</span>
+          <input type="file" id="fileInput" accept="image/*,application/pdf" style="display: none;">
+          <div class="upload-preview" id="uploadPreview" style="display: none;">
+            <img id="previewImg" src="" alt="預覽">
+            <div class="preview-info">
+              <span id="previewFileName">filename.jpg</span>
+              <button type="button" class="btn-text-danger" id="btnRemoveFile">移除</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="ocr-status-box" id="ocrStatusBox" style="display: none;">
+          <i class="fa-solid fa-wand-magic-sparkles text-primary fa-spin"></i>
+          <span>AI 正在辨識檔名與到期日...</span>
+        </div>
+
+        <div class="form-group mt-3">
+          <label for="docTitle">文件名稱 <span class="text-danger">*</span></label>
+          <div class="input-with-action">
+            <input type="text" id="docTitle" class="form-control" placeholder="例如：爸爸護照、房屋租賃合約..." required>
+            <button type="button" class="btn btn-secondary btn-sm" id="btnAiSuggestTitle">AI建議檔名</button>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="docCategory">文件分類 <span class="text-danger">*</span></label>
+            <select id="docCategory" class="form-control" required>
+              <!-- Dynamic Categories -->
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="docMember">歸屬成員 <span class="text-danger">*</span></label>
+            <select id="docMember" class="form-control" required>
+              <!-- Dynamic Members -->
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="docExpiryDate">有效到期日 (留空為永久有效)</label>
+            <input type="date" id="docExpiryDate" class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label for="docDocNo">證件/保單號碼 (選填)</label>
+            <input type="text" id="docDocNo" class="form-control" placeholder="例如：P123456789">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="docTags">搜尋標籤 (以逗號分隔)</label>
+          <input type="text" id="docTags" class="form-control" placeholder="例如：急件, 2026年度, 稅務">
+        </div>
+
+        <div class="form-group">
+          <label for="docNotes">備註與提醒事項</label>
+          <textarea id="docNotes" class="form-control" rows="2" placeholder="備註存放地點（例如：二樓書房鐵盒）或注意事項..."></textarea>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btnCancelDocModal">取消</button>
+          <button type="submit" class="btn btn-primary" id="btnSaveDoc">儲存文件</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 2: View Document Preview Modal -->
+  <div class="modal-backdrop" id="previewModal">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <div class="header-title-group">
+          <span class="category-badge" id="previewCategoryBadge">身分證件</span>
+          <h3 id="previewTitle">文件名稱</h3>
+        </div>
+        <button class="modal-close" id="btnClosePreviewModal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      
+      <div class="modal-body preview-body-layout">
+        <div class="preview-media-column">
+          <div class="preview-media-wrapper" id="previewMediaWrapper">
+            <!-- Dynamic Image or PDF Preview -->
+          </div>
+        </div>
+
+        <div class="preview-details-column">
+          <div class="status-banner" id="previewStatusBanner">
+            <!-- Dynamic Status Banner -->
+          </div>
+
+          <div class="detail-group">
+            <div class="detail-item">
+              <span class="detail-label"><i class="fa-solid fa-user"></i> 歸屬成員：</span>
+              <span class="detail-value" id="previewMember">爸爸</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label"><i class="fa-solid fa-calendar-day"></i> 到期日期：</span>
+              <span class="detail-value" id="previewExpiryDate">2026-12-31</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label"><i class="fa-solid fa-hashtag"></i> 證件/字號：</span>
+              <span class="detail-value" id="previewDocNo">尚未填寫</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label"><i class="fa-solid fa-clock"></i> 建立時間：</span>
+              <span class="detail-value" id="previewCreatedAt">2026-08-31</span>
+            </div>
+          </div>
+
+          <div class="tags-group">
+            <label><i class="fa-solid fa-tags"></i> 標籤：</label>
+            <div class="tags-container" id="previewTags">
+              <!-- Dynamic Tags -->
+            </div>
+          </div>
+
+          <div class="notes-box">
+            <label><i class="fa-solid fa-sticky-note"></i> 備註事項：</label>
+            <p id="previewNotes">無備註</p>
+          </div>
+
+          <div class="ocr-extracted-box">
+            <div class="ocr-box-header">
+              <span><i class="fa-solid fa-wand-magic-sparkles text-primary"></i> AI 自動辨識內容 (OCR)</span>
+            </div>
+            <p id="previewOcrText">自動提取之證件文字內容已完成安全加密。</p>
+          </div>
+
+          <div class="preview-actions-bar">
+            <button class="btn btn-secondary" id="btnEditFromPreview">
+              <i class="fa-solid fa-pen-to-square"></i> 改名/修改
+            </button>
+
+            <button class="btn btn-secondary" id="btnShareFromPreview">
+              <i class="fa-solid fa-share-nodes"></i> 分享至 LINE/家庭
+            </button>
+
+            <button class="btn btn-danger-soft" id="btnDeleteFromPreview">
+              <i class="fa-solid fa-trash-can"></i> 刪除
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 3: Manage & Rename Categories Modal -->
+  <div class="modal-backdrop" id="categoryManageModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-folder-gear"></i> 管理與自訂文件分類</h3>
+        <button class="modal-close" id="btnCloseCatModal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-description">您可以在此自由**新增分類**或對現有分類進行**重新命名 (Rename)** 與改圖示。</p>
+        
+        <div class="add-cat-inline-form">
+          <input type="text" id="newCatNameInput" class="form-control" placeholder="輸入新分類名稱 (如: 寵物健檢、稅務與收據)...">
+          <select id="newCatIconSelect" class="form-control font-icon-select">
+            <option value="fa-folder">📁 預設資料夾</option>
+            <option value="fa-paw">🐾 寵物紀錄</option>
+            <option value="fa-receipt">🧾 發票收據</option>
+            <option value="fa-graduation-cap">🎓 研習證書</option>
+            <option value="fa-car">🚗 車輛保養</option>
+            <option value="fa-heart-pulse">🏥 醫療紀錄</option>
+            <option value="fa-piggy-bank">🪙 財務儲蓄</option>
+          </select>
+          <button class="btn btn-primary" id="btnConfirmAddCat"><i class="fa-solid fa-plus"></i> 新增</button>
+        </div>
+
+        <div class="category-manage-list mt-4" id="catManageList">
+          <!-- Dynamic Editable Category Rows -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="btnDoneCatModal">完成</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 4: Manage Family Members Modal -->
+  <div class="modal-backdrop" id="memberManageModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-user-gear"></i> 管理家庭成員</h3>
+        <button class="modal-close" id="btnCloseMemberModal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-description">您可以新增家庭成員（如：爸爸、媽媽、阿公、毛孩），或隨時編輯成員稱呼與大頭貼。</p>
+        
+        <div class="add-member-inline-form">
+          <input type="text" id="newMemberNameInput" class="form-control" placeholder="輸入成員稱呼 (如: 奶奶, 狗狗波波)...">
+          <select id="newMemberAvatarSelect" class="form-control">
+            <option value="👨">👨 爸爸/男主</option>
+            <option value="👩">👩 媽媽/女主</option>
+            <option value="👦">👦 男孩</option>
+            <option value="👧">👧 女孩</option>
+            <option value="👴">👴 阿公/長輩</option>
+            <option value="👵">👵 阿嬤/長輩</option>
+            <option value="🐶">🐶 寵物狗</option>
+            <option value="🐱">🐱 寵物貓</option>
+            <option value="🏠">🏠 全家共有</option>
+          </select>
+          <button class="btn btn-primary" id="btnConfirmAddMember"><i class="fa-solid fa-user-plus"></i> 新增</button>
+        </div>
+
+        <div class="member-manage-list mt-4" id="memberManageList">
+          <!-- Dynamic Editable Member Rows -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="btnDoneMemberModal">完成</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 5: Member Login Switcher Modal -->
+  <div class="modal-backdrop" id="loginModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-user-shield text-primary"></i> 請選擇您的家庭成員身份</h3>
+        <button class="modal-close" id="btnCloseLoginModal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-description">請選擇目前登入小管家的成員。切換後系統將為您顯示個人與家庭共享文件。</p>
+        
+        <div class="member-login-grid" id="memberLoginGrid">
+          <!-- Dynamic Member Cards to click & login -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btnManageMembersFromLogin">
+          <i class="fa-solid fa-user-plus"></i> 管理/新增成員
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 6: AI Document Assistant Chat & Audit Modal -->
+  <div class="modal-backdrop" id="aiModal">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-wand-magic-sparkles text-primary"></i> 🤖 AI 家庭文件智慧管家助手</h3>
+        <button class="modal-close" id="btnCloseAiModal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body ai-assistant-body">
+        
+        <div class="ai-quick-actions">
+          <button class="btn btn-secondary btn-sm" id="btnAiAuditAll">
+            <i class="fa-solid fa-stethoscope text-primary"></i> 🏥 執行全家文件健檢與到期分析
+          </button>
+          <button class="btn btn-secondary btn-sm" id="btnAiFindPassports">
+            <i class="fa-solid fa-passport text-primary"></i> ✈️ 誰的護照快到期了？
+          </button>
+          <button class="btn btn-secondary btn-sm" id="btnAiFindInsurance">
+            <i class="fa-solid fa-shield-halved text-warning"></i> 🚗 檢查車險與保單狀態
+          </button>
+        </div>
+
+        <div class="ai-chat-messages" id="aiChatMessages">
+          <div class="chat-bubble ai-bubble">
+            <div class="chat-avatar">🤖</div>
+            <div class="chat-content">
+              <strong>AI 小管家：</strong> 您好！我是您的家庭文件智慧助手。我可以協助您查詢任何護照、保單、租約、健保卡到期日，或是為全家進行文件健檢預警！請問今天有什麼我可以幫忙的？
+            </div>
+          </div>
+        </div>
+
+        <div class="ai-chat-input-bar mt-3">
+          <input type="text" id="aiInput" class="form-control" placeholder="詢問 AI... (例如: 爸爸的護照放在哪？汽車保單幾號到期？)">
+          <button class="btn btn-primary" id="btnSendAi"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Application Logic -->
+  <script src="app.js"></script>
+</body>
+</html>
