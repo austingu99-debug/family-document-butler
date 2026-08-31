@@ -605,28 +605,24 @@
             <input type="date" id="calEventDate" class="form-control" required>
           </div>
 
+        <div class="form-row">
           <div class="form-group">
-            <label for="calEventType">事件類型 <span class="text-danger">*</span></label>
-            <select id="calEventType" class="form-control" required>
-              <option value="birthday">🎉 慶生節慶</option>
-              <option value="medical">🏥 醫療健檢</option>
-              <option value="payment">💳 繳費/財務</option>
-              <option value="vehicle">🚗 車輛維護</option>
-              <option value="document">📄 證件/合約</option>
-              <option value="other">📌 一般記事</option>
-              <option value="custom">✍️ 自訂類型 (自行打字命名)...</option>
-            </select>
+            <label for="calEventTypeInput">事件類型名稱 <span class="text-danger">*</span> (可直接打字命名或下拉選取)</label>
+            <input type="text" id="calEventTypeInput" class="form-control" list="calEventTypeOptions" placeholder="直接打字輸入 (例如：🏕️ 露營旅遊、🐾 寵物保養...)" required>
+            <datalist id="calEventTypeOptions">
+              <option value="🎉 慶生節慶"></option>
+              <option value="🏥 醫療健檢"></option>
+              <option value="💳 繳費/財務"></option>
+              <option value="🚗 車輛維護"></option>
+              <option value="📄 證件/合約"></option>
+              <option value="📌 一般記事"></option>
+              <option value="🏕️ 露營旅遊"></option>
+              <option value="🐾 寵物保養"></option>
+            </datalist>
           </div>
-        </div>
 
-        <!-- Dynamic Custom Type Row (Shows when "custom" selected) -->
-        <div class="form-row mt-2" id="calEventCustomTypeGroup" style="display: none;">
           <div class="form-group">
-            <label for="calEventCustomTypeName">請打字輸入自訂類型名稱 <span class="text-danger">*</span></label>
-            <input type="text" id="calEventCustomTypeName" class="form-control" placeholder="例如：🏕️ 露營旅遊、🐾 寵物打疫苗、🏋️ 健身運動...">
-          </div>
-          <div class="form-group">
-            <label for="calEventCustomColor">選擇類型代表色彩</label>
+            <label for="calEventCustomColor">標籤色彩</label>
             <input type="color" id="calEventCustomColor" class="form-control form-control-color" value="#06b6d4">
           </div>
         </div>

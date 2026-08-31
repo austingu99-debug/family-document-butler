@@ -651,48 +651,27 @@
     const editId = document.getElementById('editCalEventId');
     const titleInput = document.getElementById('calEventTitle');
     const dateInput = document.getElementById('calEventDate');
-    const typeSelect = document.getElementById('calEventType');
+    const typeInput = document.getElementById('calEventTypeInput');
+    const colorInput = document.getElementById('calEventCustomColor');
     const memberSelect = document.getElementById('calEventMember');
     const notesInput = document.getElementById('calEventNotes');
     const btnDelete = document.getElementById('btnDeleteCalEvent');
-
-    const customTypeGroup = document.getElementById('calEventCustomTypeGroup');
-    const customTypeNameInput = document.getElementById('calEventCustomTypeName');
-    const customColorInput = document.getElementById('calEventCustomColor');
 
     if (!modal) return;
 
     // Render Member options
     memberSelect.innerHTML = members.map(m => `<option value="${m.id}">${m.avatar} ${m.name}</option>`).join('');
 
-    // Re-render Event Type options with saved user custom types
-    renderEventTypeOptions(typeSelect);
-
-    typeSelect.onchange = () => {
-      if (typeSelect.value === 'custom') {
-        if (customTypeGroup) customTypeGroup.style.display = 'flex';
-        if (customTypeNameInput) customTypeNameInput.focus();
-      } else {
-        if (customTypeGroup) customTypeGroup.style.display = 'none';
-      }
-    };
+    // Update Datalist Options
+    updateDatalistOptions();
 
     if (evtToEdit) {
       document.getElementById('calEventModalTitle').innerHTML = `<i class="fa-solid fa-pen-to-square"></i> 編輯行事曆事件`;
       editId.value = evtToEdit.id;
       titleInput.value = evtToEdit.title;
       dateInput.value = evtToEdit.date;
-      typeSelect.value = evtToEdit.type || 'other';
-
-      if (evtToEdit.type === 'custom' || evtToEdit.customTypeName) {
-        typeSelect.value = 'custom';
-        if (customTypeGroup) customTypeGroup.style.display = 'flex';
-        if (customTypeNameInput) customTypeNameInput.value = evtToEdit.customTypeName || '';
-        if (customColorInput) customColorInput.value = evtToEdit.customColor || '#06b6d4';
-      } else {
-        if (customTypeGroup) customTypeGroup.style.display = 'none';
-      }
-
+      typeInput.value = evtToEdit.customTypeName || evtToEdit.typeLabel || '📌 一般記事';
+      if (colorInput) colorInput.value = evtToEdit.customColor || '#06b6d4';
       memberSelect.value = evtToEdit.memberId || members[0].id;
       notesInput.value = evtToEdit.notes || '';
       if (btnDelete) {
@@ -704,30 +683,38 @@
       form.reset();
       editId.value = '';
       dateInput.value = prefillDate || new Date().toISOString().split('T')[0];
-      if (customTypeGroup) customTypeGroup.style.display = 'none';
+      typeInput.value = '';
+      if (colorInput) colorInput.value = '#06b6d4';
       if (btnDelete) btnDelete.style.display = 'none';
     }
 
     modal.classList.add('active');
   }
 
-  function renderEventTypeOptions(selectEl) {
-    let html = `
-      <option value="birthday">🎉 慶生節慶</option>
-      <option value="medical">🏥 醫療健檢</option>
-      <option value="payment">💳 繳費/財務</option>
-      <option value="vehicle">🚗 車輛維護</option>
-      <option value="document">📄 證件/合約</option>
-      <option value="other">📌 一般記事</option>
-    `;
+  function updateDatalistOptions() {
+    const datalist = document.getElementById('calEventTypeOptions');
+    if (!datalist) return;
 
-    // Render User Saved Custom Types
+    const builtInOptions = [
+      '🎉 慶生節慶',
+      '🏥 醫療健檢',
+      '💳 繳費/財務',
+      '🚗 車輛維護',
+      '📄 證件/合約',
+      '📌 一般記事',
+      '🏕️ 露營旅遊',
+      '🐾 寵物保養',
+      '🏋️ 健身運動'
+    ];
+
+    let allOptions = [...builtInOptions];
     (userCustomEventTypes || []).forEach(ct => {
-      html += `<option value="saved_${ct.name}" data-color="${ct.color}">✨ ${ct.name}</option>`;
+      if (ct && ct.name && !allOptions.includes(ct.name)) {
+        allOptions.push(ct.name);
+      }
     });
 
-    html += `<option value="custom">✍️ 自訂類型 (自行打字命名)...</option>`;
-    selectEl.innerHTML = html;
+    datalist.innerHTML = allOptions.map(opt => `<option value="${opt}"></option>`).join('');
   }
 
   function deleteCalEvent(eventId) {
@@ -927,31 +914,16 @@
         const id = document.getElementById('editCalEventId').value;
         const title = document.getElementById('calEventTitle').value.trim();
         const date = document.getElementById('calEventDate').value;
-        const typeSelectVal = document.getElementById('calEventType').value;
+        const typeInputVal = document.getElementById('calEventTypeInput').value.trim() || '📌 一般記事';
         const memberId = document.getElementById('calEventMember').value;
         const notes = document.getElementById('calEventNotes').value.trim();
-
-        const customTypeNameInput = document.getElementById('calEventCustomTypeName');
         const customColorInput = document.getElementById('calEventCustomColor');
-        let customTypeName = customTypeNameInput ? customTypeNameInput.value.trim() : '';
-        let customColor = customColorInput ? customColorInput.value : '#06b6d4';
-        let finalType = typeSelectVal;
+        const customColor = customColorInput ? customColorInput.value : '#06b6d4';
 
-        if (typeSelectVal === 'custom') {
-          if (!customTypeName) {
-            alert('請打字輸入您的自訂類型名稱！');
-            return;
-          }
-          // Save to user custom event types memory if not existing
-          if (!userCustomEventTypes.some(t => t.name === customTypeName)) {
-            userCustomEventTypes.push({ name: customTypeName, color: customColor });
-            saveState(STORAGE_USER_EVENT_TYPES_KEY, userCustomEventTypes);
-          }
-        } else if (typeSelectVal.startsWith('saved_')) {
-          finalType = 'custom';
-          customTypeName = typeSelectVal.replace('saved_', '');
-          const matched = userCustomEventTypes.find(t => t.name === customTypeName);
-          if (matched) customColor = matched.color;
+        // Auto save newly typed custom type to datalist memory
+        if (!userCustomEventTypes.some(t => t.name === typeInputVal)) {
+          userCustomEventTypes.push({ name: typeInputVal, color: customColor });
+          saveState(STORAGE_USER_EVENT_TYPES_KEY, userCustomEventTypes);
         }
 
         if (id) {
@@ -959,26 +931,26 @@
           if (evt) {
             evt.title = title;
             evt.date = date;
-            evt.type = finalType;
-            evt.customTypeName = (finalType === 'custom' || typeSelectVal.startsWith('saved_')) ? customTypeName : '';
-            evt.customColor = (finalType === 'custom' || typeSelectVal.startsWith('saved_')) ? customColor : '';
+            evt.type = 'custom';
+            evt.customTypeName = typeInputVal;
+            evt.customColor = customColor;
             evt.memberId = memberId;
             evt.notes = notes;
           }
-          showToast(`已成功更新行事曆事件「${title}」！`);
+          showToast(`已成功更新行程「${typeInputVal}: ${title}」！`);
         } else {
           const newEvt = {
             id: 'evt-' + Date.now(),
             title,
             date,
-            type: finalType,
-            customTypeName: (finalType === 'custom' || typeSelectVal.startsWith('saved_')) ? customTypeName : '',
-            customColor: (finalType === 'custom' || typeSelectVal.startsWith('saved_')) ? customColor : '',
+            type: 'custom',
+            customTypeName: typeInputVal,
+            customColor: customColor,
             memberId,
             notes
           };
           customEvents.push(newEvt);
-          showToast(`已新增行事曆事件「${title}」至 ${date}！`);
+          showToast(`已新增行程「${typeInputVal}: ${title}」至 ${date}！`);
         }
 
         saveState(STORAGE_EVENTS_KEY, customEvents);
