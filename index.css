@@ -1946,5 +1946,56 @@ button, input, select, textarea {
   textarea {
     font-size: 16px !important;
   }
+
+  /* Summary Dashboard 2x2 Balanced Grid on Mobile */
+  .summary-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  .stat-card {
+    padding: 14px 12px;
+  }
+
+  .stat-number {
+    font-size: 24px;
+  }
+
+  /* Calendar Action Buttons Equal Width Full Stretch on Mobile */
+  .calendar-header-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .toolbar-btn-group {
+    width: 100%;
+    display: flex;
+    gap: 6px;
+  }
+
+  .toolbar-btn-group .btn {
+    flex: 1;
+    padding: 8px 4px;
+    font-size: 11px;
+    justify-content: center;
+  }
+
+  .smart-input-wrapper {
+    padding: 4px 8px 4px 12px;
+  }
+
+  .smart-input-wrapper .btn {
+    padding: 6px 10px;
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+
+  /* Floating Action Add Button Mobile Alignment */
+  .btn-add-doc-mobile {
+    bottom: calc(75px + env(safe-area-inset-bottom, 0px));
+    right: 18px;
+    z-index: 90;
+  }
 }
 
