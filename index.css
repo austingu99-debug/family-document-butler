@@ -1202,6 +1202,133 @@ button, input, select, textarea {
   margin-top: auto;
 }
 
+/* Shared Family Calendar System */
+.calendar-section {
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 28px;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 16px;
+}
+
+.calendar-title-group h2 {
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.calendar-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.calendar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.calendar-month-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius-sm);
+  margin-bottom: 12px;
+}
+
+.calendar-month-bar h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.calendar-table {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.cal-day-header {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  padding: 6px 0;
+}
+
+.cal-day-cell {
+  min-height: 85px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11px;
+}
+
+.cal-day-cell.other-month {
+  opacity: 0.3;
+}
+
+.cal-day-cell.today {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.cal-day-num {
+  font-weight: 700;
+  color: var(--text-sub);
+  margin-bottom: 2px;
+}
+
+.cal-event-pill {
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cal-event-pill.event-expired {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.cal-event-pill.event-warning {
+  background: var(--warning-bg);
+  color: var(--warning);
+}
+
+.cal-event-pill.event-ok {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
 /* Social Login & OAuth Buttons */
 .social-login-bar {
   display: flex;

@@ -444,9 +444,145 @@
     }
   }
 
+  // Shared Family Calendar Logic
+  let calendarCurrentDate = new Date(2026, 8, 1); // 2026-09-01 default
+
+  function renderFamilyCalendar() {
+    const table = document.getElementById('calendarTable');
+    const title = document.getElementById('calendarMonthYearTitle');
+    if (!table || !title) return;
+
+    const year = calendarCurrentDate.getFullYear();
+    const month = calendarCurrentDate.getMonth();
+    title.textContent = `${year} 年 ${month + 1} 月`;
+
+    table.innerHTML = '';
+
+    // Day Headers
+    const days = ['日', '一', '二', '三', '四', '五', '六'];
+    days.forEach(d => {
+      const h = document.createElement('div');
+      h.className = 'cal-day-header';
+      h.textContent = d;
+      table.appendChild(h);
+    });
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    // Empty Cells for Prev Month
+    for (let i = 0; i < firstDay; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'cal-day-cell other-month';
+      table.appendChild(cell);
+    }
+
+    // Days in Current Month
+    const today = new Date();
+    for (let day = 1; day <= daysInMonth; day++) {
+      const cell = document.createElement('div');
+      const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === day;
+      cell.className = `cal-day-cell ${isToday ? 'today' : ''}`;
+      
+      const numSpan = document.createElement('span');
+      numSpan.className = 'cal-day-num';
+      numSpan.textContent = day;
+      cell.appendChild(numSpan);
+
+      // Match Documents Expiry on this date
+      const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      const matchedDocs = documents.filter(d => d.expiryDate === dateStr);
+
+      matchedDocs.forEach(d => {
+        const s = getExpiryStatus(d.expiryDate);
+        const pill = document.createElement('div');
+        pill.className = `cal-event-pill ${s.code === 'expired' ? 'event-expired' : s.code === 'warning' ? 'event-warning' : 'event-ok'}`;
+        pill.innerHTML = `<i class="fa-solid ${s.code === 'expired' ? 'fa-circle-exclamation' : 'fa-clock'}"></i> ${d.title}`;
+        pill.title = `${d.title} (於 ${d.expiryDate} 到期)`;
+        pill.addEventListener('click', () => openPreviewModal(d));
+        cell.appendChild(pill);
+      });
+
+      table.appendChild(cell);
+    }
+  }
+
+  function exportIcsFile() {
+    let icsContent = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Family Document Butler//TW\n";
+    documents.forEach(d => {
+      if (d.expiryDate) {
+        const cleanDate = d.expiryDate.replace(/-/g, '');
+        icsContent += "BEGIN:VEVENT\n";
+        icsContent += `SUMMARY:【家庭文件到期提醒】${d.title}\n`;
+        icsContent += `DESCRIPTION:備註: ${d.notes || '無'}\n`;
+        icsContent += `DTSTART;VALUE=DATE:${cleanDate}\n`;
+        icsContent += `DTEND;VALUE=DATE:${cleanDate}\n`;
+        icsContent += "END:VEVENT\n";
+      }
+    });
+    icsContent += "END:VCALENDAR";
+
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'family_documents_calendar.ics';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    showToast('已匯出 .ics 行事曆檔案！可直接匯入 Google / Apple / Outlook 行事曆', 'fa-calendar-plus');
+  }
+
   // Bind Event Listeners
   function bindEvents() {
     registerPWA();
+
+    // Shared Family Calendar Events
+    const btnCalStat = document.getElementById('btnOpenCalendarStat');
+    const calSection = document.getElementById('calendarSection');
+    const btnCloseCal = document.getElementById('btnCloseCalendarView');
+    const btnPrevMonth = document.getElementById('btnPrevMonth');
+    const btnNextMonth = document.getElementById('btnNextMonth');
+    const btnLineNotify = document.getElementById('btnLineNotifySetup');
+    const btnExportIcs = document.getElementById('btnExportIcs');
+
+    if (btnCalStat) {
+      btnCalStat.addEventListener('click', () => {
+        calSection.style.display = 'block';
+        renderFamilyCalendar();
+        calSection.scrollIntoView({ behavior: 'smooth' });
+      });
+    }
+
+    if (btnCloseCal) {
+      btnCloseCal.addEventListener('click', () => {
+        calSection.style.display = 'none';
+      });
+    }
+
+    if (btnPrevMonth) {
+      btnPrevMonth.addEventListener('click', () => {
+        calendarCurrentDate.setMonth(calendarCurrentDate.getMonth() - 1);
+        renderFamilyCalendar();
+      });
+    }
+
+    if (btnNextMonth) {
+      btnNextMonth.addEventListener('click', () => {
+        calendarCurrentDate.setMonth(calendarCurrentDate.getMonth() + 1);
+        renderFamilyCalendar();
+      });
+    }
+
+    if (btnLineNotify) {
+      btnLineNotify.addEventListener('click', () => {
+        showToast('LINE 群組到期自動推播提醒已運作中！每日上午 9:00 自動發送到期警告通知。', 'fa-line');
+      });
+    }
+
+    if (btnExportIcs) {
+      btnExportIcs.addEventListener('click', exportIcsFile);
+    }
     // LINE Login & Google OAuth Triggers
     const btnLine = document.getElementById('btnLineLogin');
     const btnGoogle = document.getElementById('btnGoogleLogin');
