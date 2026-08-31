@@ -207,11 +207,21 @@
                 <i class="fa-solid fa-plus"></i> 新增事件
               </button>
               <button class="btn btn-secondary btn-sm" id="btnLineNotifySetup">
-                <i class="fa-brands fa-line text-success"></i> LINE 推播
+                <i class="fa-brands fa-line text-success"></i> LINE 推播測試
               </button>
               <button class="btn btn-secondary btn-sm" id="btnExportIcs">
                 <i class="fa-solid fa-calendar-plus"></i> 匯出 iCal
               </button>
+            </div>
+          </div>
+
+          <!-- Family Member Filter Chips & Analytics Bar -->
+          <div class="calendar-sub-toolbar mt-3">
+            <div class="cal-member-filters" id="calMemberFilters">
+              <!-- Dynamic Member Filter Chips -->
+            </div>
+            <div class="cal-analytics-bar" id="calAnalyticsBar">
+              <!-- Dynamic Stat Badges -->
             </div>
           </div>
 
@@ -652,6 +662,12 @@
         </div>
 
         <div class="modal-footer">
+          <button type="button" class="btn btn-success-soft" id="btnSendCalEventLine" style="display: none;">
+            <i class="fa-brands fa-line text-success"></i> LINE 推播
+          </button>
+          <button type="button" class="btn btn-secondary" id="btnSyncGoogleCal" style="display: none;">
+            <i class="fa-brands fa-google text-danger"></i> 同步至 Google 日曆
+          </button>
           <button type="button" class="btn btn-danger-soft" id="btnDeleteCalEvent" style="display: none;">
             <i class="fa-solid fa-trash-can"></i> 刪除事件
           </button>

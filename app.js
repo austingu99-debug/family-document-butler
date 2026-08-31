@@ -465,6 +465,7 @@
 
   // Shared Family Calendar Logic powered by FullCalendar v6 Standard Engine
   let calendarInstance = null;
+  let currentCalMemberFilter = 'all';
 
   function renderFamilyCalendar() {
     try {
@@ -475,11 +476,18 @@
         customEvents = [...defaultCustomEvents];
       }
 
+      // Render Member Filter Chips
+      renderCalMemberFilterChips();
+
       // Map customEvents + document expiration events into FullCalendar events array
       let fcEvents = [];
 
       // 1. Custom Family Events
       (customEvents || []).forEach(evt => {
+        if (currentCalMemberFilter !== 'all' && evt.memberId && evt.memberId !== currentCalMemberFilter && evt.memberId !== 'mem-all') {
+          return;
+        }
+
         let color = '#6366f1'; // primary
         if (evt.customColor) color = evt.customColor;
         else if (evt.type === 'birthday') color = '#ec4899'; // pink
@@ -503,6 +511,10 @@
 
       // 2. Document Expiry Events
       (documents || []).forEach(doc => {
+        if (currentCalMemberFilter !== 'all' && doc.memberId && doc.memberId !== currentCalMemberFilter && doc.memberId !== 'mem-all') {
+          return;
+        }
+
         if (doc.expiryDate) {
           const s = getExpiryStatus(doc.expiryDate);
           let color = '#10b981'; // ok
@@ -555,6 +567,35 @@
     } catch (err) {
       console.error('Error rendering FullCalendar:', err);
     }
+  }
+
+  function renderCalMemberFilterChips() {
+    const container = document.getElementById('calMemberFilters');
+    if (!container) return;
+
+    let html = `
+      <div class="cal-member-chip ${currentCalMemberFilter === 'all' ? 'active' : ''}" data-mem="all">
+        🏠 全家行程 (${(customEvents || []).length + (documents || []).filter(d => d.expiryDate).length})
+      </div>
+    `;
+
+    members.forEach(mem => {
+      const count = (customEvents || []).filter(e => e.memberId === mem.id).length + (documents || []).filter(d => d.expiryDate && d.memberId === mem.id).length;
+      html += `
+        <div class="cal-member-chip ${currentCalMemberFilter === mem.id ? 'active' : ''}" data-mem="${mem.id}">
+          ${mem.avatar} ${mem.name} (${count})
+        </div>
+      `;
+    });
+
+    container.innerHTML = html;
+
+    container.querySelectorAll('.cal-member-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        currentCalMemberFilter = chip.getAttribute('data-mem');
+        renderFamilyCalendar();
+      });
+    });
   }
 
   // Render Agenda Schedule View (Chronological List View)
@@ -667,6 +708,9 @@
     // Update Datalist Options
     updateDatalistOptions();
 
+    const btnSendLine = document.getElementById('btnSendCalEventLine');
+    const btnSyncGoogle = document.getElementById('btnSyncGoogleCal');
+
     if (evtToEdit) {
       document.getElementById('calEventModalTitle').innerHTML = `<i class="fa-solid fa-pen-to-square"></i> 編輯行事曆事件`;
       editId.value = evtToEdit.id;
@@ -676,9 +720,26 @@
       if (colorInput) colorInput.value = evtToEdit.customColor || '#06b6d4';
       memberSelect.value = evtToEdit.memberId || members[0].id;
       notesInput.value = evtToEdit.notes || '';
+      
       if (btnDelete) {
         btnDelete.style.display = 'inline-flex';
         btnDelete.onclick = () => deleteCalEvent(evtToEdit.id);
+      }
+
+      if (btnSendLine) {
+        btnSendLine.style.display = 'inline-flex';
+        btnSendLine.onclick = () => {
+          showToast(`已手動觸發 LINE Notify 訊息發送：「${evtToEdit.title} (${evtToEdit.date})」！`, 'fa-line');
+        };
+      }
+
+      if (btnSyncGoogle) {
+        btnSyncGoogle.style.display = 'inline-flex';
+        btnSyncGoogle.onclick = () => {
+          const cleanDate = (evtToEdit.date || '').replace(/-/g, '');
+          const gUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(evtToEdit.title)}&dates=${cleanDate}/${cleanDate}&details=${encodeURIComponent(evtToEdit.notes || '家庭小管家行事曆事件')}`;
+          window.open(gUrl, '_blank');
+        };
       }
     } else {
       document.getElementById('calEventModalTitle').innerHTML = `<i class="fa-solid fa-calendar-plus"></i> 新增家庭行事曆事件`;
@@ -688,6 +749,8 @@
       typeInput.value = '';
       if (colorInput) colorInput.value = '#06b6d4';
       if (btnDelete) btnDelete.style.display = 'none';
+      if (btnSendLine) btnSendLine.style.display = 'none';
+      if (btnSyncGoogle) btnSyncGoogle.style.display = 'none';
     }
 
     modal.classList.add('active');
