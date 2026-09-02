@@ -1723,11 +1723,14 @@
   // ==========================================================================
   function openCategoryManageModal() {
     renderCategoryManageList();
-    el.categoryManageModal.classList.add('active');
+    const modal = document.getElementById('categoryManageModal') || el.categoryManageModal;
+    if (modal) modal.classList.add('active');
   }
 
   function renderCategoryManageList() {
-    el.catManageList.innerHTML = '';
+    const listEl = document.getElementById('catManageList') || el.catManageList;
+    if (!listEl) return;
+    listEl.innerHTML = '';
     categories.forEach(cat => {
       const row = document.createElement('div');
       row.className = 'manage-item-row';
@@ -1768,13 +1771,17 @@
         }
       });
 
-      el.catManageList.appendChild(row);
+      listEl.appendChild(row);
     });
   }
 
   function handleAddCategory() {
-    const name = el.newCatNameInput.value.trim();
-    const icon = el.newCatIconSelect.value;
+    const input = document.getElementById('newCatNameInput') || el.newCatNameInput;
+    const select = document.getElementById('newCatIconSelect') || el.newCatIconSelect;
+    if (!input) return;
+
+    const name = input.value.trim();
+    const icon = select ? select.value : 'fa-folder';
     if (!name) {
       alert('請輸入分類名稱');
       return;
@@ -1789,7 +1796,7 @@
 
     categories.push(newCat);
     saveState(STORAGE_CATS_KEY, categories);
-    el.newCatNameInput.value = '';
+    input.value = '';
     renderCategoryManageList();
     renderSidebarAndPills();
     renderDocuments();
@@ -1802,11 +1809,14 @@
   // ==========================================================================
   function openMemberManageModal() {
     renderMemberManageList();
-    el.memberManageModal.classList.add('active');
+    const modal = document.getElementById('memberManageModal') || el.memberManageModal;
+    if (modal) modal.classList.add('active');
   }
 
   function renderMemberManageList() {
-    el.memberManageList.innerHTML = '';
+    const listEl = document.getElementById('memberManageList') || el.memberManageList;
+    if (!listEl) return;
+    listEl.innerHTML = '';
     members.forEach(mem => {
       const row = document.createElement('div');
       row.className = 'manage-item-row';
@@ -1845,13 +1855,17 @@
         }
       });
 
-      el.memberManageList.appendChild(row);
+      listEl.appendChild(row);
     });
   }
 
   function handleAddMember() {
-    const name = el.newMemberNameInput.value.trim();
-    const avatar = el.newMemberAvatarSelect.value;
+    const input = document.getElementById('newMemberNameInput') || el.newMemberNameInput;
+    const select = document.getElementById('newMemberAvatarSelect') || el.newMemberAvatarSelect;
+    if (!input) return;
+
+    const name = input.value.trim();
+    const avatar = select ? select.value : '👨';
     if (!name) {
       alert('請輸入成員稱呼');
       return;
@@ -1865,7 +1879,7 @@
 
     members.push(newMem);
     saveState(STORAGE_MEMBERS_KEY, members);
-    el.newMemberNameInput.value = '';
+    input.value = '';
     renderMemberManageList();
     renderSidebarAndPills();
     renderDocuments();
