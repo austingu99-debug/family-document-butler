@@ -127,6 +127,20 @@
         </div>
 
         <div class="header-actions">
+          <!-- Theme Toggle Button -->
+          <button class="btn btn-secondary btn-sm" id="btnThemeToggle" title="切換深色/淺色/隨系統主題">
+            <i class="fa-solid fa-moon"></i> <span class="d-none-mobile">主題</span>
+          </button>
+          
+          <!-- Global JSON Backup / Restore -->
+          <button class="btn btn-secondary btn-sm" id="btnExportBackup" title="匯出 JSON 全域資料備份檔">
+            <i class="fa-solid fa-download"></i> <span class="d-none-mobile">備份</span>
+          </button>
+          <button class="btn btn-secondary btn-sm" id="btnImportBackup" title="匯入 JSON 備份檔">
+            <i class="fa-solid fa-upload"></i> <span class="d-none-mobile">復原</span>
+          </button>
+          <input type="file" id="backupFileInput" accept=".json" style="display: none;">
+
           <button class="btn btn-accent btn-sm" id="btnOpenAiAssistant">
             <i class="fa-solid fa-wand-magic-sparkles"></i> <span class="d-none-mobile">AI 管家</span>
           </button>
@@ -138,6 +152,18 @@
           </button>
         </div>
       </header>
+
+      <!-- PWA One-Click Install Banner -->
+      <div class="pwa-install-banner" id="pwaInstallBanner" style="display: none;">
+        <div class="pwa-banner-content">
+          <i class="fa-solid fa-mobile-screen-button text-primary"></i>
+          <span>將「家庭文件小管家」加到手機主畫面，離線也能快速查閱證件與保單！</span>
+        </div>
+        <div class="pwa-banner-actions">
+          <button class="btn btn-primary btn-sm" id="btnInstallPwa">立即安裝 App</button>
+          <button class="btn btn-ghost btn-sm" id="btnClosePwaBanner"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
 
       <!-- Main Search & Action Bar -->
       <div class="main-search-bar mt-3">

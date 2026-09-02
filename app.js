@@ -1160,6 +1160,100 @@
       }, 600);
     });
 
+    // Auto Theme Toggle (Light / Dark / Auto System Sync)
+    safeBind('btnThemeToggle', 'click', () => {
+      const isLight = document.body.classList.toggle('light-theme');
+      saveState('fdb_theme_preference_v1', isLight ? 'light' : 'dark');
+      showToast(isLight ? '已切換為明亮溫馨主題模式' : '已切換為極致奢華深色模式', isLight ? 'fa-sun' : 'fa-moon');
+    });
+
+    // Global JSON Data Backup & Restore
+    safeBind('btnExportBackup', 'click', () => {
+      const backupData = {
+        version: 'v2026.09',
+        exportDate: new Date().toISOString(),
+        documents,
+        customEvents,
+        members,
+        categories
+      };
+      const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `family_doc_butler_backup_${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast('已成功匯出家庭文件與行事曆 JSON 全域備份檔！', 'fa-file-export');
+    });
+
+    safeBind('btnImportBackup', 'click', () => {
+      const fileInput = document.getElementById('backupFileInput');
+      if (fileInput) fileInput.click();
+    });
+
+    safeBind('backupFileInput', 'change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const imported = JSON.parse(event.target.result);
+          if (imported.documents && Array.isArray(imported.documents)) {
+            documents = imported.documents;
+            saveState(STORAGE_DOCS_KEY, documents);
+          }
+          if (imported.customEvents && Array.isArray(imported.customEvents)) {
+            customEvents = imported.customEvents;
+            saveState(STORAGE_EVENTS_KEY, customEvents);
+          }
+          if (imported.members && Array.isArray(imported.members)) {
+            members = imported.members;
+            saveState(STORAGE_MEMBERS_KEY, members);
+          }
+          if (imported.categories && Array.isArray(imported.categories)) {
+            categories = imported.categories;
+            saveState(STORAGE_CATS_KEY, categories);
+          }
+          updateLoggedInMemberUI();
+          renderSidebarAndPills();
+          renderDocuments();
+          renderFamilyCalendar();
+          updateStats();
+          showToast('成功復原備份資料！所有文件與行事曆已更新完畢', 'fa-cloud-arrow-down');
+        } catch (err) {
+          alert('備份檔案格式不正確，請選擇有效的 JSON 備份檔！');
+        }
+      };
+      reader.readAsText(file);
+    });
+
+    // PWA Install Prompt Handler
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPwaPrompt = e;
+      const banner = document.getElementById('pwaInstallBanner');
+      if (banner) banner.style.display = 'flex';
+    });
+
+    safeBind('btnInstallPwa', 'click', () => {
+      if (deferredPwaPrompt) {
+        deferredPwaPrompt.prompt();
+        deferredPwaPrompt.userChoice.then(() => {
+          deferredPwaPrompt = null;
+          const banner = document.getElementById('pwaInstallBanner');
+          if (banner) banner.style.display = 'none';
+        });
+      } else {
+        showToast('請使用瀏覽器選單點擊「加到主畫面」以安裝 App！', 'fa-mobile-screen-button');
+      }
+    });
+
+    safeBind('btnClosePwaBanner', 'click', () => {
+      const banner = document.getElementById('pwaInstallBanner');
+      if (banner) banner.style.display = 'none';
+    });
+
     // 4-Digit PIN Code Auto-Focus & Unlock Simulation
     const pinInputs = [document.getElementById('pinDigit1'), document.getElementById('pinDigit2'), document.getElementById('pinDigit3'), document.getElementById('pinDigit4')];
     pinInputs.forEach((input, index) => {
