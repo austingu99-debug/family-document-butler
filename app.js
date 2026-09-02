@@ -477,6 +477,7 @@
         if (calendarInstance) {
           calendarInstance.removeAllEventSources();
           calendarInstance.addEventSource(fcEvents);
+          calendarInstance.render();
           return;
         }
 
@@ -504,10 +505,102 @@
           }
         });
         calendarInstance.render();
+      } else {
+        // Fallback: Custom Native Grid Calendar (Ensures 100% rendering even if CDN fails)
+        renderCustomFallbackCalendar(table, fcEvents);
       }
     } catch (err) {
       console.error('Error rendering FullCalendar:', err);
     }
+  }
+
+  // Native Grid Calendar Fallback Engine
+  let fallbackCalYear = new Date().getFullYear();
+  let fallbackCalMonth = new Date().getMonth();
+
+  function renderCustomFallbackCalendar(table, events) {
+    const today = new Date();
+    const firstDay = new Date(fallbackCalYear, fallbackCalMonth, 1);
+    const lastDay = new Date(fallbackCalYear, fallbackCalMonth + 1, 0);
+    const startingDay = firstDay.getDay();
+    const monthLength = lastDay.getDate();
+    const monthNames = ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"];
+
+    let html = `
+      <div class="custom-cal-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-secondary btn-sm" id="fallbackPrevMonth"><i class="fa-solid fa-chevron-left"></i> 上個月</button>
+          <button class="btn btn-secondary btn-sm" id="fallbackNextMonth">下個月 <i class="fa-solid fa-chevron-right"></i></button>
+          <button class="btn btn-primary btn-sm" id="fallbackTodayBtn">回到今天</button>
+        </div>
+        <h3 style="margin:0; font-weight:700;">${fallbackCalYear}年 ${monthNames[fallbackCalMonth]}</h3>
+      </div>
+      <table class="fallback-cal-table" style="width:100%; border-collapse:collapse; text-align:center;">
+        <thead>
+          <tr style="color:var(--text-muted); font-size:13px;">
+            <th style="padding:8px;">日</th><th style="padding:8px;">一</th><th style="padding:8px;">二</th>
+            <th style="padding:8px;">三</th><th style="padding:8px;">四</th><th style="padding:8px;">五</th><th style="padding:8px;">六</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+
+    let day = 1;
+    for (let i = 0; i < 6; i++) {
+      html += '<tr>';
+      for (let j = 0; j < 7; j++) {
+        if (i === 0 && j < startingDay) {
+          html += '<td style="border:1px solid rgba(255,255,255,0.08); padding:10px; background:rgba(0,0,0,0.15);"></td>';
+        } else if (day > monthLength) {
+          html += '<td style="border:1px solid rgba(255,255,255,0.08); padding:10px; background:rgba(0,0,0,0.15);"></td>';
+        } else {
+          const dateStr = `${fallbackCalYear}-${String(fallbackCalMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+          const isToday = (day === today.getDate() && fallbackCalMonth === today.getMonth() && fallbackCalYear === today.getFullYear());
+          const dayEvts = events.filter(e => e.start === dateStr);
+
+          html += `
+            <td class="fallback-day-cell" data-date="${dateStr}" style="border:1px solid rgba(255,255,255,0.08); padding:8px 4px; vertical-align:top; height:70px; cursor:pointer; background:${isToday ? 'rgba(99,102,241,0.18)' : 'transparent'};">
+              <div style="font-weight:${isToday ? '800' : '600'}; color:${isToday ? 'var(--primary)' : 'var(--text-main)'}; font-size:12px;">${day}</div>
+              <div style="margin-top:4px;">
+                ${dayEvts.map(e => `<div style="background:${e.backgroundColor}; color:#fff; font-size:10px; padding:2px 4px; border-radius:3px; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${e.title}</div>`).join('')}
+              </div>
+            </td>
+          `;
+          day++;
+        }
+      }
+      html += '</tr>';
+      if (day > monthLength) break;
+    }
+
+    html += '</tbody></table>';
+    table.innerHTML = html;
+
+    // Fallback Event Listeners
+    document.getElementById('fallbackPrevMonth')?.addEventListener('click', () => {
+      fallbackCalMonth--;
+      if (fallbackCalMonth < 0) { fallbackCalMonth = 11; fallbackCalYear--; }
+      renderFamilyCalendar();
+    });
+
+    document.getElementById('fallbackNextMonth')?.addEventListener('click', () => {
+      fallbackCalMonth++;
+      if (fallbackCalMonth > 11) { fallbackCalMonth = 0; fallbackCalYear++; }
+      renderFamilyCalendar();
+    });
+
+    document.getElementById('fallbackTodayBtn')?.addEventListener('click', () => {
+      fallbackCalYear = new Date().getFullYear();
+      fallbackCalMonth = new Date().getMonth();
+      renderFamilyCalendar();
+    });
+
+    table.querySelectorAll('.fallback-day-cell').forEach(cell => {
+      cell.addEventListener('click', () => {
+        const d = cell.getAttribute('data-date');
+        openCalEventModal(null, d);
+      });
+    });
   }
 
   function renderCalMemberFilterChips() {
