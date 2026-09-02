@@ -2044,7 +2044,17 @@
     showToast(`成功新增家庭成員「${name}」！`);
   }
 
+  // Expose global window triggers for 100% bulletproof inline HTML onclick triggers
+  window.openCategoryManageModal = openCategoryManageModal;
+  window.openMemberManageModal = openMemberManageModal;
+  window.openLoginModal = openLoginModal;
+  window.openCalEventModal = openCalEventModal;
+  window.openDocModal = openDocModal;
+
   // Kickstart App when DOM Ready
   document.addEventListener('DOMContentLoaded', init);
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    init();
+  }
 
 })();

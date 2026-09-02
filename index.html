@@ -70,33 +70,33 @@
 
         <div class="menu-section-title section-title-with-btn">
           <span>文件分類</span>
-          <button class="icon-btn-sm" id="btnManageCategories" title="管理/新增分類">
+          <button class="icon-btn-sm" id="btnManageCategories" onclick="openCategoryManageModal()" title="管理/新增分類">
             <i class="fa-solid fa-gear"></i>
           </button>
         </div>
         <div class="category-list" id="sidebarCategories">
           <!-- Dynamic Category Items -->
         </div>
-        <button class="btn btn-ghost btn-sm text-left mt-2" id="btnAddCategoryQuick">
+        <button class="btn btn-ghost btn-sm text-left mt-2" id="btnAddCategoryQuick" onclick="openCategoryManageModal()">
           <i class="fa-solid fa-plus"></i> 新增自訂分類
         </button>
 
         <div class="menu-section-title section-title-with-btn mt-4">
           <span>家庭成員</span>
-          <button class="icon-btn-sm" id="btnManageMembers" title="管理家庭成員">
+          <button class="icon-btn-sm" id="btnManageMembers" onclick="openMemberManageModal()" title="管理家庭成員">
             <i class="fa-solid fa-user-gear"></i>
           </button>
         </div>
         <div class="member-list" id="sidebarMembers">
           <!-- Dynamic Member Items -->
         </div>
-        <button class="btn btn-ghost btn-sm text-left mt-2" id="btnAddMemberQuick">
+        <button class="btn btn-ghost btn-sm text-left mt-2" id="btnAddMemberQuick" onclick="openMemberManageModal()">
           <i class="fa-solid fa-user-plus"></i> 新增家庭成員
         </button>
       </nav>
 
       <div class="sidebar-footer">
-        <div class="user-profile clickable" id="btnSwitchMemberSidebar" title="點擊切換登入成員">
+        <div class="user-profile clickable" id="btnSwitchMemberSidebar" onclick="openLoginModal()" title="點擊切換登入成員">
           <div class="avatar" id="sidebarMemberAvatar">👨</div>
           <div class="user-info">
             <h4 id="sidebarMemberName">爸爸 (陳大明)</h4>
