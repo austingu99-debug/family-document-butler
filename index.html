@@ -569,19 +569,48 @@
         
         <!-- Segmented Auth Mode Switcher (Netflix / Apple Style) -->
         <div class="auth-segmented-nav">
-          <button type="button" class="auth-tab-btn active" id="tabAuthSocial" data-authtab="social">
-            <i class="fa-solid fa-key"></i> 社群綁定
+          <button type="button" class="auth-tab-btn active" id="tabAuthProfiles" data-authtab="profiles">
+            <i class="fa-solid fa-users"></i> 誰在使用？ (點擊登入)
           </button>
-          <button type="button" class="auth-tab-btn" id="tabAuthProfiles" data-authtab="profiles">
-            <i class="fa-solid fa-users"></i> 誰在使用？
+          <button type="button" class="auth-tab-btn" id="tabAuthSocial" data-authtab="social">
+            <i class="fa-solid fa-key"></i> 社群綁定
           </button>
           <button type="button" class="auth-tab-btn" id="tabAuthPin" data-authtab="pin">
             <i class="fa-solid fa-lock"></i> PIN 碼解鎖
           </button>
         </div>
 
-        <!-- Section 1: Social Login & Cloud Sync -->
-        <div class="auth-tab-content active" id="authContentSocial">
+        <!-- Section 1: Who's Watching Netflix-Style Profiles (Active Default) -->
+        <div class="auth-tab-content active" id="authContentProfiles">
+          <p class="modal-description mt-2">點擊下方成員頭像即可一鍵登入與切換個人專屬文件櫃：</p>
+          <div class="member-login-grid mt-3" id="memberLoginGrid">
+            <!-- Dynamic Member Cards to click & login -->
+          </div>
+
+          <!-- Quick Add New Family Member Accordion / Box -->
+          <div class="quick-add-member-box mt-4">
+            <label style="font-size:13px; font-weight:600; color:var(--text-muted); display:flex; align-items:center; gap:6px;">
+              <i class="fa-solid fa-user-plus text-primary"></i> 快速為新家人建立帳號：
+            </label>
+            <div class="input-with-action mt-2">
+              <input type="text" id="quickNewMemberName" class="form-control" placeholder="輸入成員稱呼 (如: 阿公, 妹寶, 寵物小狗)...">
+              <select id="quickNewMemberAvatar" class="form-control" style="max-width: 90px;">
+                <option value="👨">👨 爸爸</option>
+                <option value="👩">👩 媽媽</option>
+                <option value="👦">👦 男孩</option>
+                <option value="👧">👧 女孩</option>
+                <option value="👴">👴 爺爺</option>
+                <option value="👵">👵 奶奶</option>
+                <option value="🐶">🐶 寵物</option>
+                <option value="🐱">🐱 貓咪</option>
+              </select>
+              <button type="button" class="btn btn-primary btn-sm" id="btnConfirmQuickAddMember">建立帳號</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2: Social Login & Cloud Sync -->
+        <div class="auth-tab-content" id="authContentSocial" style="display: none;">
           <div class="social-login-grid mt-3">
             <button class="social-btn btn-line-auth" id="btnLineLogin">
               <i class="fa-brands fa-line"></i>
@@ -613,35 +642,6 @@
             <div class="account-badge-row">
               <span><i class="fa-brands fa-line text-success"></i> LINE: <strong id="lineAccountName" class="text-success">已授權登入 (陳大明)</strong></span>
               <span><i class="fa-brands fa-google text-danger"></i> Google: <strong id="googleAccountStatus" class="text-success">雲端自動備份中</strong></span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Section 2: Who's Watching Netflix-Style Profiles -->
-        <div class="auth-tab-content" id="authContentProfiles" style="display: none;">
-          <p class="modal-description mt-2">點擊下方成員頭像即可一鍵切換個人專屬文件櫃：</p>
-          <div class="member-login-grid mt-3" id="memberLoginGrid">
-            <!-- Dynamic Member Cards to click & login -->
-          </div>
-
-          <!-- Quick Add New Family Member Accordion / Box -->
-          <div class="quick-add-member-box mt-4">
-            <label style="font-size:13px; font-weight:600; color:var(--text-muted); display:flex; align-items:center; gap:6px;">
-              <i class="fa-solid fa-user-plus text-primary"></i> 快速為新家人建立帳號：
-            </label>
-            <div class="input-with-action mt-2">
-              <input type="text" id="quickNewMemberName" class="form-control" placeholder="輸入成員稱呼 (如: 阿公, 妹寶, 寵物小狗)...">
-              <select id="quickNewMemberAvatar" class="form-control" style="max-width: 90px;">
-                <option value="👨">👨 爸爸</option>
-                <option value="👩">👩 媽媽</option>
-                <option value="👦">👦 男孩</option>
-                <option value="👧">👧 女孩</option>
-                <option value="👴">👴 爺爺</option>
-                <option value="👵">👵 奶奶</option>
-                <option value="🐶">🐶 寵物</option>
-                <option value="🐱">🐱 貓咪</option>
-              </select>
-              <button type="button" class="btn btn-primary btn-sm" id="btnConfirmQuickAddMember">建立帳號</button>
             </div>
           </div>
         </div>

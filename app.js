@@ -1053,12 +1053,47 @@
       });
     });
 
-    // Apple ID Sign In Simulator
+    // Social OAuth Login Simulators with Instant Modal Close & Login State
+    safeBind('btnLineLogin', 'click', () => {
+      showToast('正在進行 LINE 快速安全驗證...', 'fa-line');
+      setTimeout(() => {
+        currentLoggedInMemberId = members[0] ? members[0].id : 'mem-dad';
+        saveState('fdb_current_member_id_v1', currentLoggedInMemberId);
+        updateLoggedInMemberUI();
+        renderSidebarAndPills();
+        renderDocuments();
+        renderFamilyCalendar();
+        if (el.loginModal) el.loginModal.classList.remove('active');
+        showToast('LINE 帳號登入成功！已驗證全域權限並載入個人文件庫', 'fa-circle-check');
+      }, 600);
+    });
+
+    safeBind('btnGoogleLogin', 'click', () => {
+      showToast('正在與 Google 帳號及 Google Drive 完成連線...', 'fa-google');
+      setTimeout(() => {
+        currentLoggedInMemberId = members[0] ? members[0].id : 'mem-dad';
+        saveState('fdb_current_member_id_v1', currentLoggedInMemberId);
+        updateLoggedInMemberUI();
+        renderSidebarAndPills();
+        renderDocuments();
+        renderFamilyCalendar();
+        if (el.loginModal) el.loginModal.classList.remove('active');
+        showToast('Google 帳號連結成功！已啟動家庭文件雙向自動備份', 'fa-cloud-arrow-up');
+      }, 600);
+    });
+
     safeBind('btnAppleLogin', 'click', () => {
       showToast('正在透過 Apple ID 與 Passkey 安全加密驗證...', 'fa-apple');
       setTimeout(() => {
-        showToast('Apple ID 加密驗證成功！已建立專屬金鑰連線', 'fa-shield-halved');
-      }, 1000);
+        currentLoggedInMemberId = members[0] ? members[0].id : 'mem-dad';
+        saveState('fdb_current_member_id_v1', currentLoggedInMemberId);
+        updateLoggedInMemberUI();
+        renderSidebarAndPills();
+        renderDocuments();
+        renderFamilyCalendar();
+        if (el.loginModal) el.loginModal.classList.remove('active');
+        showToast('Apple ID 驗證成功！已建立專屬加密金鑰連線', 'fa-shield-halved');
+      }, 600);
     });
 
     // 4-Digit PIN Code Auto-Focus & Unlock Simulation
