@@ -17,12 +17,14 @@ self.addEventListener('activate', (e) => {
 
 // Network-first strategy to ensure users always get the latest code
 self.addEventListener('fetch', (e) => {
+  if (e.request.method !== 'GET' || !e.request.url.startsWith('http')) return;
+
   e.respondWith(
     fetch(e.request)
       .then((networkResponse) => {
-        if (networkResponse && networkResponse.status === 200) {
+        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
           const responseClone = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(e.request, responseClone));
+          caches.open(CACHE_NAME).then((cache) => cache.put(e.request, responseClone)).catch(() => {});
         }
         return networkResponse;
       })

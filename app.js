@@ -1034,6 +1034,70 @@
 
     safeBind('btnExportIcs', 'click', exportIcsFile);
 
+    // Quick Add Calendar Event Trigger
+    safeBind('btnQuickAddCalEvent', 'click', () => openCalEventModal());
+    safeBind('btnCloseCalEventModal', 'click', () => {
+      const modal = document.getElementById('calEventModal');
+      if (modal) modal.classList.remove('active');
+    });
+    safeBind('btnCancelCalEventModal', 'click', () => {
+      const modal = document.getElementById('calEventModal');
+      if (modal) modal.classList.remove('active');
+    });
+
+    // Custom Calendar Event Form Submit
+    const calEventForm = document.getElementById('calEventForm');
+    if (calEventForm) {
+      calEventForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const id = document.getElementById('editCalEventId').value;
+        const title = document.getElementById('calEventTitle').value.trim();
+        const date = document.getElementById('calEventDate').value;
+        const typeInputVal = document.getElementById('calEventTypeInput').value.trim() || '📌 一般記事';
+        const memberId = document.getElementById('calEventMember').value;
+        const notes = document.getElementById('calEventNotes').value.trim();
+        const customColorInput = document.getElementById('calEventCustomColor');
+        const customColor = customColorInput ? customColorInput.value : '#06b6d4';
+
+        if (!title || !date) {
+          alert('請輸入事件名稱與日期！');
+          return;
+        }
+
+        if (id) {
+          const evt = customEvents.find(ev => ev.id === id);
+          if (evt) {
+            evt.title = title;
+            evt.date = date;
+            evt.type = 'custom';
+            evt.customTypeName = typeInputVal;
+            evt.customColor = customColor;
+            evt.memberId = memberId;
+            evt.notes = notes;
+          }
+          showToast(`已成功更新行程「${typeInputVal}: ${title}」！`);
+        } else {
+          const newEvt = {
+            id: 'evt-' + Date.now(),
+            title,
+            date,
+            type: 'custom',
+            customTypeName: typeInputVal,
+            customColor: customColor,
+            memberId,
+            notes
+          };
+          customEvents.push(newEvt);
+          showToast(`已新增行程「${typeInputVal}: ${title}」至 ${date}！`);
+        }
+
+        saveState(STORAGE_EVENTS_KEY, customEvents);
+        const modal = document.getElementById('calEventModal');
+        if (modal) modal.classList.remove('active');
+        renderFamilyCalendar();
+      });
+    }
+
     // Netflix/Spotify Auth Tab Switcher Handlers
     document.querySelectorAll('.auth-tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
