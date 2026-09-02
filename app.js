@@ -827,67 +827,50 @@
     }
   }
 
-  function exportIcsFile() {
-    let icsContent = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Family Document Butler//TW\n";
-    documents.forEach(d => {
-      if (d.expiryDate) {
-        const cleanDate = d.expiryDate.replace(/-/g, '');
-        icsContent += "BEGIN:VEVENT\n";
-        icsContent += `SUMMARY:【家庭文件到期提醒】${d.title}\n`;
-        icsContent += `DESCRIPTION:備註: ${d.notes || '無'}\n`;
-        icsContent += `DTSTART;VALUE=DATE:${cleanDate}\n`;
-        icsContent += `DTEND;VALUE=DATE:${cleanDate}\n`;
-        icsContent += "END:VEVENT\n";
-      }
-    });
-    icsContent += "END:VCALENDAR";
-
-    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'family_documents_calendar.ics';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    showToast('已匯出 .ics 行事曆檔案！可直接匯入 Google / Apple / Outlook 行事曆', 'fa-calendar-plus');
+  // Safe Event Binding Helper (Prevents any uncaught JS TypeError crash)
+  function safeBind(target, event, handler) {
+    if (!target) return;
+    let element = typeof target === 'string' ? document.getElementById(target) : target;
+    if (element) {
+      element.addEventListener(event, handler);
+    }
   }
 
-  // Bind Event Listeners
+  // Bind UI Event Handlers
   function bindEvents() {
-    registerPWA();
-
-    // Sidebar Menu Items Click Handlers (解決點擊行事曆與各維度沒反應問題)
-    document.querySelectorAll('.sidebar .menu-item[data-filter-type]').forEach(item => {
+    // Navigation items
+    document.querySelectorAll('.sidebar-menu .menu-item').forEach(item => {
       item.addEventListener('click', (e) => {
         e.preventDefault();
-        document.querySelectorAll('.sidebar .menu-item').forEach(m => m.classList.remove('active'));
+        document.querySelectorAll('.sidebar-menu .menu-item').forEach(i => i.classList.remove('active'));
         item.classList.add('active');
 
         const filterType = item.getAttribute('data-filter-type');
         const calSection = document.getElementById('calendarSection');
 
-        if (filterType === 'calendar') {
+        if (filterType === 'all') {
+          resetFilters();
+          if (calSection) calSection.style.display = 'block';
+        } else if (filterType === 'calendar') {
           if (calSection) {
             calSection.style.display = 'block';
             renderFamilyCalendar();
             calSection.scrollIntoView({ behavior: 'smooth' });
           }
-        } else if (filterType === 'all') {
-          resetFilters();
-          window.scrollTo({ top: 0, behavior: 'smooth' });
         } else if (filterType === 'alert') {
           currentStatusFilter = 'alert';
           renderDocuments();
-          document.getElementById('documentsContainer').scrollIntoView({ behavior: 'smooth' });
+          if (document.getElementById('documentsContainer')) {
+            document.getElementById('documentsContainer').scrollIntoView({ behavior: 'smooth' });
+          }
         } else if (filterType === 'recent') {
-          el.sortSelect.value = 'created-desc';
+          if (el.sortSelect) el.sortSelect.value = 'created-desc';
           renderDocuments();
         }
       });
     });
 
-    // Mobile Bottom Tab Bar Click Handlers (全流暢分頁切換)
+    // Mobile Bottom Tab Bar Click Handlers
     document.querySelectorAll('.mobile-bottom-nav .nav-tab').forEach(tab => {
       tab.addEventListener('click', (e) => {
         e.preventDefault();
@@ -956,249 +939,113 @@
       });
     }
 
-    // Quick Add Bar & Plus Button Handler
-    const btnQuickAddCalEvent = document.getElementById('btnQuickAddCalEvent');
-    const btnSubmitQuickCal = document.getElementById('btnSubmitQuickCal');
-    const quickCalInput = document.getElementById('quickCalInput');
-
-    if (btnQuickAddCalEvent) {
-      btnQuickAddCalEvent.addEventListener('click', () => openCalEventModal());
-    }
-
-    if (btnSubmitQuickCal && quickCalInput) {
-      const handleQuickSubmit = () => {
-        const text = quickCalInput.value.trim();
-        if (!text) return;
-
-        // Try extracting date if typed (e.g., "8/31 媽媽生日")
-        let targetDate = new Date().toISOString().split('T')[0];
-        const dateMatch = text.match(/(\d{1,2})[\/\-](\d{1,2})/);
-        if (dateMatch) {
-          const m = String(dateMatch[1]).padStart(2, '0');
-          const d = String(dateMatch[2]).padStart(2, '0');
-          targetDate = `${new Date().getFullYear()}-${m}-${d}`;
-        }
-
-        const cleanTitle = text.replace(/(\d{1,2})[\/\-](\d{1,2})/, '').trim() || text;
-
-        const newEvt = {
-          id: 'evt-' + Date.now(),
-          title: cleanTitle,
-          date: targetDate,
-          type: 'other',
-          memberId: currentLoggedInMemberId,
-          notes: '快速輸入新增'
-        };
-
-        customEvents.push(newEvt);
-        saveState(STORAGE_EVENTS_KEY, customEvents);
-        quickCalInput.value = '';
-        renderFamilyCalendar();
-        showToast(`已成功將「${cleanTitle}」加入 ${targetDate} 的行事曆！`, 'fa-calendar-plus');
-      };
-
-      btnSubmitQuickCal.addEventListener('click', handleQuickSubmit);
-      quickCalInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') handleQuickSubmit();
-      });
-    }
-
-    // Custom Calendar Event Form Submit
-    const calEventForm = document.getElementById('calEventForm');
-    const calEventModal = document.getElementById('calEventModal');
-    const btnCloseCalEvent = document.getElementById('btnCloseCalEventModal');
-    const btnCancelCalEvent = document.getElementById('btnCancelCalEventModal');
-
-    if (btnCloseCalEvent) btnCloseCalEvent.addEventListener('click', () => calEventModal.classList.remove('active'));
-    if (btnCancelCalEvent) btnCancelCalEvent.addEventListener('click', () => calEventModal.classList.remove('active'));
-
-    if (calEventForm) {
-      calEventForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const id = document.getElementById('editCalEventId').value;
-        const title = document.getElementById('calEventTitle').value.trim();
-        const date = document.getElementById('calEventDate').value;
-        const typeInputVal = document.getElementById('calEventTypeInput').value.trim() || '📌 一般記事';
-        const memberId = document.getElementById('calEventMember').value;
-        const notes = document.getElementById('calEventNotes').value.trim();
-        const customColorInput = document.getElementById('calEventCustomColor');
-        const customColor = customColorInput ? customColorInput.value : '#06b6d4';
-
-        // Auto save newly typed custom type to datalist memory
-        if (!userCustomEventTypes.some(t => t.name === typeInputVal)) {
-          userCustomEventTypes.push({ name: typeInputVal, color: customColor });
-          saveState(STORAGE_USER_EVENT_TYPES_KEY, userCustomEventTypes);
-        }
-
-        if (id) {
-          const evt = customEvents.find(ev => ev.id === id);
-          if (evt) {
-            evt.title = title;
-            evt.date = date;
-            evt.type = 'custom';
-            evt.customTypeName = typeInputVal;
-            evt.customColor = customColor;
-            evt.memberId = memberId;
-            evt.notes = notes;
-          }
-          showToast(`已成功更新行程「${typeInputVal}: ${title}」！`);
-        } else {
-          const newEvt = {
-            id: 'evt-' + Date.now(),
-            title,
-            date,
-            type: 'custom',
-            customTypeName: typeInputVal,
-            customColor: customColor,
-            memberId,
-            notes
-          };
-          customEvents.push(newEvt);
-          showToast(`已新增行程「${typeInputVal}: ${title}」至 ${date}！`);
-        }
-
-        saveState(STORAGE_EVENTS_KEY, customEvents);
-        calEventModal.classList.remove('active');
-        renderFamilyCalendar();
-      });
-    }
+    // Quick Smart Calendar Input
+    safeBind('btnSubmitQuickCal', 'click', handleQuickCalSubmit);
+    safeBind('quickCalInput', 'keypress', (e) => {
+      if (e.key === 'Enter') handleQuickCalSubmit();
+    });
 
     // Shared Family Calendar Events
-    const btnCalStat = document.getElementById('btnOpenCalendarStat');
-    const calSection = document.getElementById('calendarSection');
-    const btnCloseCal = document.getElementById('btnCloseCalendarView');
-    const btnPrevMonth = document.getElementById('btnPrevMonth');
-    const btnNextMonth = document.getElementById('btnNextMonth');
-    const btnLineNotify = document.getElementById('btnLineNotifySetup');
-    const btnExportIcs = document.getElementById('btnExportIcs');
-
-    if (btnCalStat) {
-      btnCalStat.addEventListener('click', () => {
+    safeBind('btnOpenCalendarStat', 'click', () => {
+      const calSection = document.getElementById('calendarSection');
+      if (calSection) {
         calSection.style.display = 'block';
         renderFamilyCalendar();
         calSection.scrollIntoView({ behavior: 'smooth' });
-      });
-    }
+      }
+    });
 
-    if (btnCloseCal) {
-      btnCloseCal.addEventListener('click', () => {
-        calSection.style.display = 'none';
-      });
-    }
+    safeBind('btnCloseCalendarView', 'click', () => {
+      const calSection = document.getElementById('calendarSection');
+      if (calSection) calSection.style.display = 'none';
+    });
 
-    const btnCalToday = document.getElementById('btnCalToday');
-    if (btnCalToday) {
-      btnCalToday.addEventListener('click', () => {
-        const todayNow = new Date();
-        currentCalYear = todayNow.getFullYear();
-        currentCalMonth = todayNow.getMonth();
+    safeBind('btnCalToday', 'click', () => {
+      const todayNow = new Date();
+      currentCalYear = todayNow.getFullYear();
+      currentCalMonth = todayNow.getMonth();
+      renderFamilyCalendar();
+      showToast('已回到目前當月 Today 行事曆視圖！', 'fa-location-crosshairs');
+    });
+
+    safeBind('btnResetCalData', 'click', () => {
+      if (confirm('確定要修復並重置行事曆與快取資料嗎？')) {
+        localStorage.removeItem(STORAGE_EVENTS_KEY);
+        customEvents = [...defaultCustomEvents];
+        saveState(STORAGE_EVENTS_KEY, customEvents);
         renderFamilyCalendar();
-        showToast('已回到目前當月 Today 行事曆視圖！', 'fa-location-crosshairs');
-      });
-    }
+        showToast('行事曆資料與快取已修復並重置為最新版！', 'fa-wrench');
+      }
+    });
 
-    const btnResetCalData = document.getElementById('btnResetCalData');
-    if (btnResetCalData) {
-      btnResetCalData.addEventListener('click', () => {
-        if (confirm('確定要修復並重置行事曆與快取資料嗎？（這將重置預設範例行程並清空舊快取）')) {
-          localStorage.removeItem(STORAGE_EVENTS_KEY);
-          customEvents = [...defaultCustomEvents];
-          saveState(STORAGE_EVENTS_KEY, customEvents);
-          renderFamilyCalendar();
-          showToast('行事曆資料與快取已修復並重置為最新版！', 'fa-wrench');
-        }
-      });
-    }
+    safeBind('btnPrevMonth', 'click', () => {
+      currentCalMonth--;
+      if (currentCalMonth < 0) { currentCalMonth = 11; currentCalYear--; }
+      renderFamilyCalendar();
+    });
 
-    if (btnPrevMonth) {
-      btnPrevMonth.addEventListener('click', () => {
-        currentCalMonth--;
-        if (currentCalMonth < 0) {
-          currentCalMonth = 11;
-          currentCalYear--;
-        }
-        renderFamilyCalendar();
-      });
-    }
+    safeBind('btnNextMonth', 'click', () => {
+      currentCalMonth++;
+      if (currentCalMonth > 11) { currentCalMonth = 0; currentCalYear++; }
+      renderFamilyCalendar();
+    });
 
-    if (btnNextMonth) {
-      btnNextMonth.addEventListener('click', () => {
-        currentCalMonth++;
-        if (currentCalMonth > 11) {
-          currentCalMonth = 0;
-          currentCalYear++;
-        }
-        renderFamilyCalendar();
-      });
-    }
+    safeBind('btnLineNotifySetup', 'click', () => {
+      showToast('LINE 群組到期自動推播提醒已運作中！每日上午 9:00 自動發送到期警告通知。', 'fa-line');
+    });
 
-    if (btnLineNotify) {
-      btnLineNotify.addEventListener('click', () => {
-        showToast('LINE 群組到期自動推播提醒已運作中！每日上午 9:00 自動發送到期警告通知。', 'fa-line');
-      });
-    }
+    safeBind('btnExportIcs', 'click', exportIcsFile);
 
-    if (btnExportIcs) {
-      btnExportIcs.addEventListener('click', exportIcsFile);
-    }
     // LINE Login & Google OAuth Triggers
-    const btnLine = document.getElementById('btnLineLogin');
-    const btnGoogle = document.getElementById('btnGoogleLogin');
+    safeBind('btnLineLogin', 'click', () => {
+      showToast('正在導向 LINE 快速安全登入...', 'fa-line');
+      setTimeout(() => {
+        currentLoggedInMemberId = 'mem-dad';
+        saveState('fdb_current_member_id_v1', currentLoggedInMemberId);
+        updateLoggedInMemberUI();
+        const accName = document.getElementById('lineAccountName');
+        if (accName) accName.textContent = '已授權登入 (爸爸)';
+        if (el.loginModal) el.loginModal.classList.remove('active');
+        showToast('LINE 帳號登入成功！已驗證全域金鑰權限', 'fa-circle-check');
+      }, 1000);
+    });
 
-    if (btnLine) {
-      btnLine.addEventListener('click', () => {
-        showToast('正在導向 LINE 快速安全登入...', 'fa-line');
-        setTimeout(() => {
-          currentLoggedInMemberId = 'mem-dad';
-          saveState('fdb_current_member_id_v1', currentLoggedInMemberId);
-          updateLoggedInMemberUI();
-          document.getElementById('lineAccountName').textContent = '已授權登入 (爸爸)';
-          el.loginModal.classList.remove('active');
-          showToast('LINE 帳號登入成功！已驗證全域金鑰權限', 'fa-circle-check');
-        }, 1000);
-      });
-    }
-
-    if (btnGoogle) {
-      btnGoogle.addEventListener('click', () => {
-        showToast('正在與 Google 帳號及 Google Drive 完成備份連結...', 'fa-google');
-        setTimeout(() => {
-          document.getElementById('googleAccountStatus').textContent = '已連結 Google Drive 雲端同步';
-          showToast('Google 帳號連結成功！已啟動家庭文件雙向自動備份', 'fa-cloud-arrow-up');
-        }, 1200);
-      });
-    }
+    safeBind('btnGoogleLogin', 'click', () => {
+      showToast('正在與 Google 帳號及 Google Drive 完成備份連結...', 'fa-google');
+      setTimeout(() => {
+        const gStatus = document.getElementById('googleAccountStatus');
+        if (gStatus) gStatus.textContent = '已連結 Google Drive 雲端同步';
+        showToast('Google 帳號連結成功！已啟動家庭文件雙向自動備份', 'fa-cloud-arrow-up');
+      }, 1200);
+    });
 
     // Login Switcher Triggers
-    el.btnSwitchMemberSidebar.addEventListener('click', openLoginModal);
-    el.btnCurrentMemberBadge.addEventListener('click', openLoginModal);
-    el.btnCloseLoginModal.addEventListener('click', () => el.loginModal.classList.remove('active'));
-    el.btnManageMembersFromLogin.addEventListener('click', () => {
-      el.loginModal.classList.remove('active');
+    safeBind(el.btnSwitchMemberSidebar, 'click', openLoginModal);
+    safeBind(el.btnCurrentMemberBadge, 'click', openLoginModal);
+    safeBind(el.btnCloseLoginModal, 'click', () => el.loginModal && el.loginModal.classList.remove('active'));
+    safeBind(el.btnManageMembersFromLogin, 'click', () => {
+      if (el.loginModal) el.loginModal.classList.remove('active');
       openMemberManageModal();
     });
 
     // AI Assistant Modal Triggers
-    const btnAiAuditTop = document.getElementById('btnAiAuditTop');
-    if (btnAiAuditTop) {
-      btnAiAuditTop.addEventListener('click', () => {
-        openAiModal();
-        sendUserAiMessage('請幫全家進行文件健檢與到期分析');
-      });
-    }
-
-    el.btnOpenAiAssistant.addEventListener('click', openAiModal);
-    el.btnCloseAiModal.addEventListener('click', () => el.aiModal.classList.remove('active'));
-    el.btnSendAi.addEventListener('click', () => sendUserAiMessage(el.aiInput.value));
-    el.aiInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') sendUserAiMessage(el.aiInput.value);
+    safeBind('btnAiAuditTop', 'click', () => {
+      openAiModal();
+      sendUserAiMessage('請幫全家進行文件健檢與到期分析');
     });
 
-    el.btnAiAuditAll.addEventListener('click', () => sendUserAiMessage('請幫全家進行文件健檢與到期分析'));
-    el.btnAiFindPassports.addEventListener('click', () => sendUserAiMessage('誰的護照快到期了？'));
-    el.btnAiFindInsurance.addEventListener('click', () => sendUserAiMessage('檢查車險與保單狀態'));
+    safeBind(el.btnOpenAiAssistant, 'click', openAiModal);
+    safeBind(el.btnCloseAiModal, 'click', () => el.aiModal && el.aiModal.classList.remove('active'));
+    safeBind(el.btnSendAi, 'click', () => el.aiInput && sendUserAiMessage(el.aiInput.value));
+    safeBind(el.aiInput, 'keypress', (e) => {
+      if (e.key === 'Enter' && el.aiInput) sendUserAiMessage(el.aiInput.value);
+    });
 
-    // Mobile Sidebar Toggle (解決手機三條線按鈕與遮罩點擊關閉)
+    safeBind(el.btnAiAuditAll, 'click', () => sendUserAiMessage('請幫全家進行文件健檢與到期分析'));
+    safeBind(el.btnAiFindPassports, 'click', () => sendUserAiMessage('誰的護照快到期了？'));
+    safeBind(el.btnAiFindInsurance, 'click', () => sendUserAiMessage('檢查車險與保單狀態'));
+
+    // Mobile Sidebar Toggle
     const toggleMobileSidebar = () => {
       const sidebar = document.getElementById('sidebar');
       const overlay = document.getElementById('sidebarOverlay');
@@ -1218,10 +1065,7 @@
       });
     });
 
-    const overlayEl = document.getElementById('sidebarOverlay');
-    if (overlayEl) {
-      overlayEl.addEventListener('click', toggleMobileSidebar);
-    }
+    safeBind('sidebarOverlay', 'click', toggleMobileSidebar);
 
     // Add Document Buttons
     document.querySelectorAll('#btnOpenAddDoc, #btnOpenAddDocTop, #btnEmptyAdd, #btnFabAdd').forEach(btn => {
@@ -1229,13 +1073,13 @@
     });
 
     // Close Modals
-    document.getElementById('btnCloseDocModal').addEventListener('click', closeDocModal);
-    document.getElementById('btnCancelDocModal').addEventListener('click', closeDocModal);
-    document.getElementById('btnClosePreviewModal').addEventListener('click', closePreviewModal);
-    document.getElementById('btnCloseCatModal').addEventListener('click', () => el.categoryManageModal.classList.remove('active'));
-    document.getElementById('btnDoneCatModal').addEventListener('click', () => el.categoryManageModal.classList.remove('active'));
-    document.getElementById('btnCloseMemberModal').addEventListener('click', () => el.memberManageModal.classList.remove('active'));
-    document.getElementById('btnDoneMemberModal').addEventListener('click', () => el.memberManageModal.classList.remove('active'));
+    safeBind('btnCloseDocModal', 'click', closeDocModal);
+    safeBind('btnCancelDocModal', 'click', closeDocModal);
+    safeBind('btnClosePreviewModal', 'click', closePreviewModal);
+    safeBind('btnCloseCatModal', 'click', () => el.categoryManageModal && el.categoryManageModal.classList.remove('active'));
+    safeBind('btnDoneCatModal', 'click', () => el.categoryManageModal && el.categoryManageModal.classList.remove('active'));
+    safeBind('btnCloseMemberModal', 'click', () => el.memberManageModal && el.memberManageModal.classList.remove('active'));
+    safeBind('btnDoneMemberModal', 'click', () => el.memberManageModal && el.memberManageModal.classList.remove('active'));
 
     // Manage Categories Modal Trigger
     document.querySelectorAll('#btnManageCategories, #btnManageCategoriesTop, #btnAddCategoryQuick').forEach(btn => {
@@ -1248,35 +1092,37 @@
     });
 
     // Search Box
-    el.searchInput.addEventListener('input', (e) => {
-      searchQuery = e.target.value.trim().toLowerCase();
-      el.clearSearchBtn.style.display = searchQuery ? 'block' : 'none';
-      renderDocuments();
-    });
+    if (el.searchInput) {
+      el.searchInput.addEventListener('input', (e) => {
+        searchQuery = e.target.value.trim().toLowerCase();
+        if (el.clearSearchBtn) el.clearSearchBtn.style.display = searchQuery ? 'block' : 'none';
+        renderDocuments();
+      });
+    }
 
-    el.clearSearchBtn.addEventListener('click', () => {
-      el.searchInput.value = '';
+    safeBind(el.clearSearchBtn, 'click', () => {
+      if (el.searchInput) el.searchInput.value = '';
       searchQuery = '';
-      el.clearSearchBtn.style.display = 'none';
+      if (el.clearSearchBtn) el.clearSearchBtn.style.display = 'none';
       renderDocuments();
     });
 
     // Sort Select
-    el.sortSelect.addEventListener('change', () => renderDocuments());
+    safeBind(el.sortSelect, 'change', () => renderDocuments());
 
     // View Toggle
-    el.viewGridBtn.addEventListener('click', () => {
+    safeBind(el.viewGridBtn, 'click', () => {
       viewMode = 'grid';
-      el.viewGridBtn.classList.add('active');
-      el.viewListBtn.classList.remove('active');
-      el.documentsContainer.className = 'documents-container grid-view';
+      if (el.viewGridBtn) el.viewGridBtn.classList.add('active');
+      if (el.viewListBtn) el.viewListBtn.classList.remove('active');
+      if (el.documentsContainer) el.documentsContainer.className = 'documents-container grid-view';
     });
 
-    el.viewListBtn.addEventListener('click', () => {
+    safeBind(el.viewListBtn, 'click', () => {
       viewMode = 'list';
-      el.viewListBtn.classList.add('active');
-      el.viewGridBtn.classList.remove('active');
-      el.documentsContainer.className = 'documents-container list-view';
+      if (el.viewListBtn) el.viewListBtn.classList.add('active');
+      if (el.viewGridBtn) el.viewGridBtn.classList.remove('active');
+      if (el.documentsContainer) el.documentsContainer.className = 'documents-container list-view';
     });
 
     // Stat Cards Clicks
