@@ -560,7 +560,7 @@
       <div class="modal-body">
         
         <!-- Social Login Action Bar -->
-        <div class="social-login-bar mb-4">
+        <div class="social-login-bar mb-3">
           <button class="btn btn-line-login" id="btnLineLogin">
             <i class="fa-brands fa-line"></i> 使用 LINE 帳號一鍵登入
           </button>
@@ -570,27 +570,46 @@
         </div>
 
         <div class="divider-with-text">
-          <span>或切換家庭成員 Profile</span>
+          <span>點擊頭像切換登入身分 Profile</span>
         </div>
-
-        <p class="modal-description mt-2">點擊下方成員可切換至個人專屬文件櫃與共享資料庫：</p>
         
-        <div class="member-login-grid" id="memberLoginGrid">
+        <div class="member-login-grid mt-3" id="memberLoginGrid">
           <!-- Dynamic Member Cards to click & login -->
         </div>
 
+        <!-- Quick Add New Family Member Accordion / Box -->
+        <div class="quick-add-member-box mt-4">
+          <label style="font-size:13px; font-weight:600; color:var(--text-muted); display:flex; align-items:center; gap:6px;">
+            <i class="fa-solid fa-user-plus text-primary"></i> 快速為新家人建立帳號：
+          </label>
+          <div class="input-with-action mt-2">
+            <input type="text" id="quickNewMemberName" class="form-control" placeholder="輸入成員稱呼 (如: 阿公, 妹妹, 狗狗波波)...">
+            <select id="quickNewMemberAvatar" class="form-control" style="max-width: 90px;">
+              <option value="👨">👨 爸爸</option>
+              <option value="👩">👩 媽媽</option>
+              <option value="👦">👦 男孩</option>
+              <option value="👧">👧 女孩</option>
+              <option value="👴">👴 爺爺</option>
+              <option value="👵">👵 奶奶</option>
+              <option value="🐶">🐶 寵物</option>
+              <option value="🐱">🐱 貓咪</option>
+            </select>
+            <button type="button" class="btn btn-primary btn-sm" id="btnConfirmQuickAddMember">建立帳號</button>
+          </div>
+        </div>
+
         <!-- Connected Accounts Card -->
-        <div class="connected-account-info mt-4" id="connectedAccountBox">
+        <div class="connected-account-info mt-3" id="connectedAccountBox">
           <div class="account-badge-row">
-            <span><i class="fa-brands fa-line text-success"></i> LINE: <strong id="lineAccountName">已授權登入 (陳大明)</strong></span>
-            <span><i class="fa-brands fa-google text-danger"></i> Google: <strong id="googleAccountStatus">已連結雲端備份</strong></span>
+            <span><i class="fa-brands fa-line text-success"></i> LINE 狀態: <strong id="lineAccountName" class="text-success">已授權登入 (陳大明)</strong></span>
+            <span><i class="fa-brands fa-google text-danger"></i> Google 備份: <strong id="googleAccountStatus" class="text-success">雲端同步中</strong></span>
           </div>
         </div>
 
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" id="btnManageMembersFromLogin">
-          <i class="fa-solid fa-user-plus"></i> 管理成員/新增帳號
+          <i class="fa-solid fa-gear"></i> 管理/修改所有成員資訊
         </button>
       </div>
     </div>

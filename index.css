@@ -1700,7 +1700,7 @@ button, input, select, textarea {
   flex-wrap: wrap;
 }
 
-/* Member Login Grid */
+/* Member Login Grid & Active Pill */
 .member-login-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
@@ -1719,7 +1719,8 @@ button, input, select, textarea {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  position: relative;
 }
 
 .login-member-card:hover {
@@ -1729,9 +1730,9 @@ button, input, select, textarea {
 }
 
 .login-member-card.active {
-  border-color: var(--primary);
-  background: var(--primary-light);
-  box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.12);
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.3);
 }
 
 .login-avatar {
@@ -1740,8 +1741,29 @@ button, input, select, textarea {
 
 .login-name {
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-main);
+}
+
+.login-active-pill {
+  font-size: 10px;
+  font-weight: 700;
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.2);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+
+.login-switch-hint {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.quick-add-member-box {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px dashed var(--border-color);
+  padding: 14px;
+  border-radius: var(--radius-md);
 }
 
 /* AI Assistant Modal Specifics */

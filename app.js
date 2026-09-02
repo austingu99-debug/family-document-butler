@@ -248,24 +248,62 @@
 
   // Open Login Switcher Modal
   function openLoginModal() {
+    if (!el.memberLoginGrid || !el.loginModal) return;
     el.memberLoginGrid.innerHTML = '';
     members.forEach(mem => {
+      const isLoggedIn = mem.id === currentLoggedInMemberId;
       const card = document.createElement('div');
-      card.className = `login-member-card ${mem.id === currentLoggedInMemberId ? 'active' : ''}`;
+      card.className = `login-member-card ${isLoggedIn ? 'active' : ''}`;
       card.innerHTML = `
         <div class="login-avatar">${mem.avatar}</div>
         <div class="login-name">${mem.name}</div>
+        ${isLoggedIn ? '<span class="login-active-pill"><i class="fa-solid fa-circle-check"></i> 目前登入</span>' : '<span class="login-switch-hint">點擊切換</span>'}
       `;
       card.addEventListener('click', () => {
         currentLoggedInMemberId = mem.id;
         saveState('fdb_current_member_id_v1', currentLoggedInMemberId);
         updateLoggedInMemberUI();
+        renderSidebarAndPills();
+        renderDocuments();
+        renderFamilyCalendar();
         el.loginModal.classList.remove('active');
-        showToast(`歡迎回來，已切換身份為「${mem.name}」！`, 'fa-user-check');
+        showToast(`歡迎回來！已切換登入身分 Profile 為「${mem.name}」！`, 'fa-user-check');
       });
       el.memberLoginGrid.appendChild(card);
     });
     el.loginModal.classList.add('active');
+  }
+
+  // Quick Add Member directly inside Login Modal
+  function handleQuickAddMemberFromLogin() {
+    const input = document.getElementById('quickNewMemberName');
+    const avatarSelect = document.getElementById('quickNewMemberAvatar');
+    if (!input) return;
+
+    const name = input.value.trim();
+    if (!name) {
+      alert('請輸入新家人的稱呼（如：阿公、妹寶、狗狗波波）！');
+      return;
+    }
+
+    const newMem = {
+      id: 'mem-' + Date.now(),
+      name: name,
+      avatar: avatarSelect ? avatarSelect.value : '👨'
+    };
+
+    members.push(newMem);
+    saveState(STORAGE_MEMBERS_KEY, members);
+    currentLoggedInMemberId = newMem.id;
+    saveState('fdb_current_member_id_v1', currentLoggedInMemberId);
+
+    input.value = '';
+    updateLoggedInMemberUI();
+    renderSidebarAndPills();
+    renderDocuments();
+    renderFamilyCalendar();
+    openLoginModal();
+    showToast(`已成功為「${newMem.name}」建立新帳號並自動切換登入！`, 'fa-user-plus');
   }
 
   // AI Assistant Handlers
@@ -1019,13 +1057,18 @@
       }, 1200);
     });
 
-    // Login Switcher Triggers
+    // Login Switcher & Quick Member Add Triggers
     safeBind(el.btnSwitchMemberSidebar, 'click', openLoginModal);
     safeBind(el.btnCurrentMemberBadge, 'click', openLoginModal);
     safeBind(el.btnCloseLoginModal, 'click', () => el.loginModal && el.loginModal.classList.remove('active'));
     safeBind(el.btnManageMembersFromLogin, 'click', () => {
       if (el.loginModal) el.loginModal.classList.remove('active');
       openMemberManageModal();
+    });
+
+    safeBind('btnConfirmQuickAddMember', 'click', handleQuickAddMemberFromLogin);
+    safeBind('quickNewMemberName', 'keypress', (e) => {
+      if (e.key === 'Enter') handleQuickAddMemberFromLogin();
     });
 
     // AI Assistant Modal Triggers
