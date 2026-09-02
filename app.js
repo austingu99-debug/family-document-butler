@@ -1034,27 +1034,58 @@
 
     safeBind('btnExportIcs', 'click', exportIcsFile);
 
-    // LINE Login & Google OAuth Triggers
-    safeBind('btnLineLogin', 'click', () => {
-      showToast('正在導向 LINE 快速安全登入...', 'fa-line');
+    // Netflix/Spotify Auth Tab Switcher Handlers
+    document.querySelectorAll('.auth-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.auth-tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.auth-tab-content').forEach(c => {
+          c.classList.remove('active');
+          c.style.display = 'none';
+        });
+
+        btn.classList.add('active');
+        const targetTab = btn.getAttribute('data-authtab');
+        const targetContent = document.getElementById(targetTab === 'social' ? 'authContentSocial' : targetTab === 'profiles' ? 'authContentProfiles' : 'authContentPin');
+        if (targetContent) {
+          targetContent.classList.add('active');
+          targetContent.style.display = 'block';
+        }
+      });
+    });
+
+    // Apple ID Sign In Simulator
+    safeBind('btnAppleLogin', 'click', () => {
+      showToast('正在透過 Apple ID 與 Passkey 安全加密驗證...', 'fa-apple');
       setTimeout(() => {
-        currentLoggedInMemberId = 'mem-dad';
-        saveState('fdb_current_member_id_v1', currentLoggedInMemberId);
-        updateLoggedInMemberUI();
-        const accName = document.getElementById('lineAccountName');
-        if (accName) accName.textContent = '已授權登入 (爸爸)';
-        if (el.loginModal) el.loginModal.classList.remove('active');
-        showToast('LINE 帳號登入成功！已驗證全域金鑰權限', 'fa-circle-check');
+        showToast('Apple ID 加密驗證成功！已建立專屬金鑰連線', 'fa-shield-halved');
       }, 1000);
     });
 
-    safeBind('btnGoogleLogin', 'click', () => {
-      showToast('正在與 Google 帳號及 Google Drive 完成備份連結...', 'fa-google');
-      setTimeout(() => {
-        const gStatus = document.getElementById('googleAccountStatus');
-        if (gStatus) gStatus.textContent = '已連結 Google Drive 雲端同步';
-        showToast('Google 帳號連結成功！已啟動家庭文件雙向自動備份', 'fa-cloud-arrow-up');
-      }, 1200);
+    // 4-Digit PIN Code Auto-Focus & Unlock Simulation
+    const pinInputs = [document.getElementById('pinDigit1'), document.getElementById('pinDigit2'), document.getElementById('pinDigit3'), document.getElementById('pinDigit4')];
+    pinInputs.forEach((input, index) => {
+      if (input) {
+        input.addEventListener('input', () => {
+          if (input.value.length === 1 && index < 3 && pinInputs[index + 1]) {
+            pinInputs[index + 1].focus();
+          }
+        });
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Backspace' && !input.value && index > 0 && pinInputs[index - 1]) {
+            pinInputs[index - 1].focus();
+          }
+        });
+      }
+    });
+
+    safeBind('btnSubmitPinUnlock', 'click', () => {
+      const pinCode = pinInputs.map(i => i ? i.value : '').join('');
+      if (pinCode.length < 4) {
+        alert('請填滿 4 位數 PIN 安全解鎖碼！');
+        return;
+      }
+      showToast('PIN 碼驗證成功！已進入全家私密文件庫沙盒', 'fa-lock-open');
+      if (el.loginModal) el.loginModal.classList.remove('active');
     });
 
     // Login Switcher & Quick Member Add Triggers

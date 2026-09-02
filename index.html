@@ -550,59 +550,117 @@
     </div>
   </div>
 
-  <!-- Modal 5: Member Login & Social OAuth Modal -->
+  <!-- Modal 5: Netflix/Spotify-Style Premium Authentication Center Modal -->
   <div class="modal-backdrop" id="loginModal">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3><i class="fa-solid fa-user-shield text-primary"></i> 家庭成員登入與帳號綁定</h3>
+    <div class="modal-card modal-auth-card">
+      <div class="modal-header auth-modal-header">
+        <div class="auth-brand-banner">
+          <div class="auth-logo-badge">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <div class="auth-banner-text">
+            <h3>家庭成員登入與認證中心</h3>
+            <span>Family Document Butler Authentication</span>
+          </div>
+        </div>
         <button class="modal-close" id="btnCloseLoginModal"><i class="fa-solid fa-xmark"></i></button>
       </div>
-      <div class="modal-body">
+      <div class="modal-body auth-modal-body">
         
-        <!-- Social Login Action Bar -->
-        <div class="social-login-bar mb-3">
-          <button class="btn btn-line-login" id="btnLineLogin">
-            <i class="fa-brands fa-line"></i> 使用 LINE 帳號一鍵登入
+        <!-- Segmented Auth Mode Switcher (Netflix / Apple Style) -->
+        <div class="auth-segmented-nav">
+          <button type="button" class="auth-tab-btn active" id="tabAuthSocial" data-authtab="social">
+            <i class="fa-solid fa-key"></i> 社群綁定
           </button>
-          <button class="btn btn-google-login" id="btnGoogleLogin">
-            <i class="fa-brands fa-google"></i> 連結 Google 帳號備份
+          <button type="button" class="auth-tab-btn" id="tabAuthProfiles" data-authtab="profiles">
+            <i class="fa-solid fa-users"></i> 誰在使用？
+          </button>
+          <button type="button" class="auth-tab-btn" id="tabAuthPin" data-authtab="pin">
+            <i class="fa-solid fa-lock"></i> PIN 碼解鎖
           </button>
         </div>
 
-        <div class="divider-with-text">
-          <span>點擊頭像切換登入身分 Profile</span>
-        </div>
-        
-        <div class="member-login-grid mt-3" id="memberLoginGrid">
-          <!-- Dynamic Member Cards to click & login -->
-        </div>
+        <!-- Section 1: Social Login & Cloud Sync -->
+        <div class="auth-tab-content active" id="authContentSocial">
+          <div class="social-login-grid mt-3">
+            <button class="social-btn btn-line-auth" id="btnLineLogin">
+              <i class="fa-brands fa-line"></i>
+              <div class="social-btn-text">
+                <span class="btn-title">使用 LINE 帳號一鍵登入</span>
+                <span class="btn-sub">快速授權群組自動推播與金鑰驗證</span>
+              </div>
+            </button>
 
-        <!-- Quick Add New Family Member Accordion / Box -->
-        <div class="quick-add-member-box mt-4">
-          <label style="font-size:13px; font-weight:600; color:var(--text-muted); display:flex; align-items:center; gap:6px;">
-            <i class="fa-solid fa-user-plus text-primary"></i> 快速為新家人建立帳號：
-          </label>
-          <div class="input-with-action mt-2">
-            <input type="text" id="quickNewMemberName" class="form-control" placeholder="輸入成員稱呼 (如: 阿公, 妹妹, 狗狗波波)...">
-            <select id="quickNewMemberAvatar" class="form-control" style="max-width: 90px;">
-              <option value="👨">👨 爸爸</option>
-              <option value="👩">👩 媽媽</option>
-              <option value="👦">👦 男孩</option>
-              <option value="👧">👧 女孩</option>
-              <option value="👴">👴 爺爺</option>
-              <option value="👵">👵 奶奶</option>
-              <option value="🐶">🐶 寵物</option>
-              <option value="🐱">🐱 貓咪</option>
-            </select>
-            <button type="button" class="btn btn-primary btn-sm" id="btnConfirmQuickAddMember">建立帳號</button>
+            <button class="social-btn btn-google-auth" id="btnGoogleLogin">
+              <i class="fa-brands fa-google text-danger"></i>
+              <div class="social-btn-text">
+                <span class="btn-title">連結 Google 帳號備份</span>
+                <span class="btn-sub">雙向同步至個人 Google Drive 雲端</span>
+              </div>
+            </button>
+
+            <button class="social-btn btn-apple-auth" id="btnAppleLogin">
+              <i class="fa-brands fa-apple"></i>
+              <div class="social-btn-text">
+                <span class="btn-title">使用 Apple ID 快速登入</span>
+                <span class="btn-sub">iOS 安全加密認證與 Passkey 支援</span>
+              </div>
+            </button>
+          </div>
+
+          <!-- Connected Accounts Card -->
+          <div class="connected-account-info mt-4" id="connectedAccountBox">
+            <div class="account-badge-row">
+              <span><i class="fa-brands fa-line text-success"></i> LINE: <strong id="lineAccountName" class="text-success">已授權登入 (陳大明)</strong></span>
+              <span><i class="fa-brands fa-google text-danger"></i> Google: <strong id="googleAccountStatus" class="text-success">雲端自動備份中</strong></span>
+            </div>
           </div>
         </div>
 
-        <!-- Connected Accounts Card -->
-        <div class="connected-account-info mt-3" id="connectedAccountBox">
-          <div class="account-badge-row">
-            <span><i class="fa-brands fa-line text-success"></i> LINE 狀態: <strong id="lineAccountName" class="text-success">已授權登入 (陳大明)</strong></span>
-            <span><i class="fa-brands fa-google text-danger"></i> Google 備份: <strong id="googleAccountStatus" class="text-success">雲端同步中</strong></span>
+        <!-- Section 2: Who's Watching Netflix-Style Profiles -->
+        <div class="auth-tab-content" id="authContentProfiles" style="display: none;">
+          <p class="modal-description mt-2">點擊下方成員頭像即可一鍵切換個人專屬文件櫃：</p>
+          <div class="member-login-grid mt-3" id="memberLoginGrid">
+            <!-- Dynamic Member Cards to click & login -->
+          </div>
+
+          <!-- Quick Add New Family Member Accordion / Box -->
+          <div class="quick-add-member-box mt-4">
+            <label style="font-size:13px; font-weight:600; color:var(--text-muted); display:flex; align-items:center; gap:6px;">
+              <i class="fa-solid fa-user-plus text-primary"></i> 快速為新家人建立帳號：
+            </label>
+            <div class="input-with-action mt-2">
+              <input type="text" id="quickNewMemberName" class="form-control" placeholder="輸入成員稱呼 (如: 阿公, 妹寶, 寵物小狗)...">
+              <select id="quickNewMemberAvatar" class="form-control" style="max-width: 90px;">
+                <option value="👨">👨 爸爸</option>
+                <option value="👩">👩 媽媽</option>
+                <option value="👦">👦 男孩</option>
+                <option value="👧">👧 女孩</option>
+                <option value="👴">👴 爺爺</option>
+                <option value="👵">👵 奶奶</option>
+                <option value="🐶">🐶 寵物</option>
+                <option value="🐱">🐱 貓咪</option>
+              </select>
+              <button type="button" class="btn btn-primary btn-sm" id="btnConfirmQuickAddMember">建立帳號</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 3: 4-Digit Security PIN Code Unlock -->
+        <div class="auth-tab-content" id="authContentPin" style="display: none;">
+          <div class="pin-unlock-card mt-3">
+            <i class="fa-solid fa-shield-cat pin-icon text-accent"></i>
+            <h4>私密文件庫 4 位數 PIN 碼解鎖</h4>
+            <p style="font-size:12px; color:var(--text-muted);">保護全家個人權狀、護照與保單隱私安全</p>
+            <div class="pin-input-group mt-3">
+              <input type="password" id="pinDigit1" class="pin-digit" maxlength="1" placeholder="•">
+              <input type="password" id="pinDigit2" class="pin-digit" maxlength="1" placeholder="•">
+              <input type="password" id="pinDigit3" class="pin-digit" maxlength="1" placeholder="•">
+              <input type="password" id="pinDigit4" class="pin-digit" maxlength="1" placeholder="•">
+            </div>
+            <button class="btn btn-primary mt-3" id="btnSubmitPinUnlock">
+              <i class="fa-solid fa-lock-open"></i> 一鍵解鎖進入私密文件庫
+            </button>
           </div>
         </div>
 
